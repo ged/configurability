@@ -1,0 +1,16 @@
+= configurability
+
+Configurability is mixin that allows you to add configurability to one or more classes, assign them each a section of the configuration, and then when the configuration is loaded, the class is given the section it requested. 
+
+You can check out the current development source with Mercurial like so:
+
+    hg clone http://repo.deveiate.org/configurability
+
+You can submit bug reports, suggestions, and read more about future plans at the
+project page:
+
+    http://bitbucket.org/ged/configurability
+
+== License
+
+See the included LICENSE file for licensing details.
