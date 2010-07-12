@@ -96,7 +96,7 @@ If you still want the `config` variable to be set, just `super` from your implem
 You can submit bug reports, suggestions, and read more about future plans at
 the project page:
 
-    http://bitbucket.org/ged/configurability
+> http://bitbucket.org/ged/configurability
 
 or clone it with Mercurial from the same address.
 

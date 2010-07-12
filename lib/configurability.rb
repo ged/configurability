@@ -133,7 +133,7 @@ module Configurability
 
 
 	### Set the config key of the object.
-	### @params [Symbol] sym  the config key
+	### @param [Symbol] sym  the config key
 	def config_key=( sym )
 		@config_key = sym
 	end
