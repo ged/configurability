@@ -147,6 +147,20 @@ describe Configurability do
 		Configurability.configure_objects( config )
 	end
 
+	it "normalizes the object's name before using it" do
+		object = Object.new
+		def object.name; "Test Obj-Config"; end
+		object.extend( Configurability )
+
+		config = stub( "configuration object" )
+		config.should_receive( :respond_to? ).with( :test_obj_config ).and_return( true )
+		config.should_receive( :test_obj_config ).and_return( :a_config_section )
+
+		object.should_receive( :configure ).with( :a_config_section )
+
+		Configurability.configure_objects( config )
+	end
+
 	it "uses the object's class's name for its config key if it doesn't have a name and " +
 	   "hasn't specified a key directly" do
 		object = Object.new
@@ -157,6 +171,22 @@ describe Configurability do
 		config.should_receive( :object ).and_return( :a_config_section )
 
 		object.should_receive( :configure ).with( :a_config_section )
+
+		Configurability.configure_objects( config )
+	end
+
+	it "uses only the last part of a class's name if it is namespaced" do
+		module My
+			class DbObject
+				extend Configurability
+			end
+		end
+
+		config = stub( "configuration object" )
+		config.should_receive( :respond_to? ).with( :dbobject ).and_return( true )
+		config.should_receive( :dbobject ).and_return( :a_config_section )
+
+		My::DbObject.should_receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
 	end

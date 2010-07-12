@@ -1,0 +1,4 @@
+^\.yardoc/
+^docs/api/
+\.DS_Store
+ChangeLog
