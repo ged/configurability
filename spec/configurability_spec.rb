@@ -85,8 +85,8 @@ describe Configurability do
 		Configurability.configure_objects( config )
 	end
 
-	it "passes nil to the configure method if the config doesn't have the object's " +
-	   "requested config key" do
+	it "passes nil to the configure method if the config doesn't respond to the section " +
+	   "name or the index operator" do
 		klass = Class.new do
 			extend Configurability
 			config_key :testconfig
@@ -97,6 +97,23 @@ describe Configurability do
 		config.should_receive( :respond_to? ).with( :[] ).and_return( false )
 
 		klass.should_receive( :configure ).with( nil )
+
+		Configurability.configure_objects( config )
+	end
+
+	it "tries the config key as a String if calling it with the Symbol returns nil" do
+		klass = Class.new do
+			extend Configurability
+			config_key :testconfig
+		end
+
+		config = stub( "configuration object" )
+		config.should_receive( :respond_to? ).with( :testconfig ).and_return( false )
+		config.should_receive( :respond_to? ).with( :[] ).and_return( true )
+		config.should_receive( :[] ).with( :testconfig ).and_return( nil )
+		config.should_receive( :[] ).with( 'testconfig' ).and_return( :a_config_section )
+
+		klass.should_receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
 	end

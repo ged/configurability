@@ -94,7 +94,7 @@ module Configurability
 				obj.configure( config.send(section) )
 			elsif config.respond_to?( :[] )
 				self.log.debug "  config has a an index operator method; using that"
-				obj.configure( config[section] )
+				obj.configure( config[section] || config[section.to_s] )
 			else
 				self.log.warn "  don't know how to get the %p section of the config from %p" %
 					[ section, config ]
