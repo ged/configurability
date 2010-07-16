@@ -9,7 +9,7 @@ require 'yaml'
 module Configurability
 
 	# Library version constant
-	VERSION = '1.0.0'
+	VERSION = '1.0.1'
 
 	# Version-control revision constant
 	REVISION = %q$Revision$
@@ -84,6 +84,9 @@ module Configurability
 	### +config_key+, the object's #configure method is called with +nil+ 
 	### instead.
 	def self::configure_objects( config )
+		self.log.debug "Splitting up config %p between %d objects with configurability." %
+			[ config, self.configurable_objects.length ]
+
 		self.configurable_objects.each do |obj|
 			section = obj.config_key.to_sym
 			self.log.debug "Configuring %p with the %p section of the config." %
