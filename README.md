@@ -35,7 +35,12 @@ _section name_ as a `Symbol` or a `String`:
 
 The section name is based on an object's _config key_, which is the name of
 the object that is being extended with all non-word characters converted into
-underscores (`_`) by default.
+underscores (`_`) by default. It will also have any leading Ruby-style
+namespaces stripped, e.g.,
+
+		    MyClass            -> :myclass
+		    Acme::User         -> :user
+		    "J. Random Hacker" -> :j_random_hacker
 
 If the object responds to the `#name` method, then the return value of that
 method is used to derive the name. If it doesn't have a `#name` method, the

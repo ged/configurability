@@ -2,3 +2,4 @@
 ^docs/api/
 \.DS_Store
 ChangeLog
+pkg/

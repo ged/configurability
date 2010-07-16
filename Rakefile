@@ -202,8 +202,8 @@ SMTP_HOST = "mail.faeriemud.org"
 SMTP_PORT = 465 # SMTP + SSL
 
 # Project constants
-PROJECT_HOST = 'bitbucket.org'
-PROJECT_PUBDIR = 'http://bitbucket.org/ged/configurability/downloads'
+PROJECT_HOST = 'deveiate.org'
+PROJECT_PUBDIR = '/usr/local/www/public/code'
 PROJECT_DOCDIR = "#{PROJECT_PUBDIR}/#{PKG_NAME}"
 PROJECT_SCPPUBURL = "#{PROJECT_HOST}:#{PROJECT_PUBDIR}"
 PROJECT_SCPDOCURL = "#{PROJECT_HOST}:#{PROJECT_DOCDIR}"

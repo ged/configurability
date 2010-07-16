@@ -1,13 +1,18 @@
 --- 
 excluded_pkgfiles: []
 
-project_pubdir: http://bitbucket.org/ged/configurability/downloads
-project_pubhost: bitbucket.org
+project_pubdir: /usr/local/www/public/code
+project_pubhost: deveiate.org
 project_homepage: http://bitbucket.org/ged/configurability
 project_requirements: {}
 
 release_smtphost: mail.faeriemud.org
-project_description: Configurability is mixin that allows you to add configurability to one or more classes, assign them each a section of the configuration, and then when the configuration is loaded, the class is given the section it requested.
+project_description: |-
+  Configurability is a mixin that allows you to add 
+  configurability to one or more classes, assign them 
+  each a section of the configuration, and then when 
+  the configuration is loaded, the class is given the 
+  section it requested.
 release_mailto: Ruby-Talk List <ruby-talk@ruby-lang.org>
 project_dependencies: {}
 
