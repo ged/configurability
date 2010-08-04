@@ -52,6 +52,54 @@ to the appropriate section of the config object for each object that has
 been extended with Configurability.
 
 
+## Configuration Objects
+
+Configurability also includes `Configurability::Config`, a fairly simple
+configuration object class that can be used to load a YAML configuration file,
+and then present both a Hash-like and a Struct-like interface for reading
+configuration sections and values.
+
+Here's a quick example to demonstrate some of its features. Suppose you have a
+config file that looks like this:
+
+	--
+	development:
+	  adapter: sqlite3
+	  database: db/development.sqlite3
+	  pool: 5
+	  timeout: 5000
+
+	test:
+	  adapter: sqlite3
+	  database: db/test.sqlite3
+	  pool: 5
+	  timeout: 5000
+
+	production:
+	  adapter: sqlite3
+	  database: db/production.sqlite3
+	  pool: 5
+	  timeout: 5000
+
+You can load this config like so:
+
+	require 'configurability/config'
+	config = Configurability::Config.load( 'config/database.yml' )
+	=> (Configurability::Config @struct=(Configurability::Config::Struct @hash={:development=>{:adapter=>"sqlite3", :database=>"db/development.sqlite3", :pool=>5, :timeout=>5000}, :test=>{:adapter=>"sqlite3", :database=>"db/test.sqlite3", :pool=>5, :timeout=>5000}, :production=>{:adapter=>"sqlite3", :database=>"db/production.sqlite3", :pool=>5, :timeout=>5000}} @dirty=false) @time_created=2010-08-04 10:29:00 -0700 @name="/Users/mgranger/temp/chumpy/config/database.yml")
+	irb(main):004:0> config.production
+	=> (Configurability::Config::Struct @hash={:adapter=>"sqlite3", :database=>"db/production.sqlite3", :pool=>5, :timeout=>5000} @dirty=false)
+	irb(main):005:0> config.production.db
+	=> (Configurability::Config::Struct @hash={} @dirty=false)
+	irb(main):006:0> config.production.adapter
+	=> "sqlite3"
+	irb(main):007:0> config.production.database
+	=> "db/production.sqlite3"
+	irb(main):008:0> config.production.pool
+	=> 5
+	irb(main):009:0> config.development.adapter
+	=> "sqlite3"
+	
+
 ## Customization
 
 The default behavior above is just provided as a reasonable default; it is

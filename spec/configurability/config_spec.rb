@@ -65,8 +65,30 @@ describe Configurability::Config do
 		config.plugins.filestore.maxsize.should == 1024
 	end
 
+	it "merges values loaded from the config with any defaults given" do
+		config = Configurability::Config.new( TEST_CONFIG, :defaultkey => "Oh yeah." )
+		config.defaultkey.should == "Oh yeah."
+	end
 
-	describe "created with a source" do
+	it "yields itself if a block is given at creation" do
+		yielded_self = nil
+		config = Configurability::Config.new { yielded_self = self }
+		yielded_self.should equal( config )
+	end
+
+	it "passes itself as the block argument if a block of arity 1 is given at creation" do
+		arg_self = nil
+		yielded_self = nil
+		config = Configurability::Config.new do |arg|
+			yielded_self = self
+			arg_self = arg
+		end
+		yielded_self.should_not equal( config )
+		arg_self.should equal( config )
+	end
+
+
+	describe "created with in-memory YAML source" do
 
 		before(:each) do
 			@config = Configurability::Config.new( TEST_CONFIG )
@@ -78,7 +100,7 @@ describe Configurability::Config do
 			@config.should_not respond_to( :pork_sausage )
 		end
 
-		it "should contain values specified in the source" do
+		it "contains values specified in the source" do
 			# section:
 			#   subsection:
 			#     subsubsection: value
@@ -100,7 +122,7 @@ describe Configurability::Config do
 			@config.textsection.should == "With some text as the value\n...and another line."
 		end
 
-		it "can return struct members as an Array of Symbols" do
+		it "returns struct members as an Array of Symbols" do
 			@config.members.should be_an_instance_of( Array )
 			@config.members.should have_at_least( 4 ).things
 			@config.members.each do |member|
@@ -114,11 +136,24 @@ describe Configurability::Config do
 			end
 		end
 
-		it "should dump values specified in the source" do
+		it "dumps values specified in the source" do
 			@config.dump.should =~ /^section:/
 			@config.dump.should =~ /^\s+subsection:/
 			@config.dump.should =~ /^\s+subsubsection:/
 			@config.dump.should =~ /^- list/
+		end
+
+		it "provides a human-readable description of itself when inspected" do
+			@config.inspect.should =~ /4 sections/i
+			@config.inspect.should =~ /mergekey/
+			@config.inspect.should =~ /textsection/
+			@config.inspect.should =~ /from memory/i
+		end
+
+		it "raises an exception when reloaded" do
+			expect {
+				@config.reload
+			}.to raise_exception( RuntimeError, /can't reload from an in-memory source/i )
 		end
 
 	end
@@ -163,17 +198,41 @@ describe Configurability::Config do
 
 
 		### Specifications
-		it "should know which file it was loaded from" do
-			@config.name.should == File.expand_path( @tmpfile.path )
+		it "remembers which file it was loaded from" do
+			@config.path.should == Pathname( @tmpfile.path ).expand_path
 		end
 
-		it "should write itself back to the same file by default" do
+		it "writes itself back to the same file by default" do
 			@config.port = 114411
 			@config.write
 			otherconfig = Configurability::Config.load( @tmpfile.path )
 
 			otherconfig.port.should == 114411
 		end
+
+		it "includes the name of the file in its inspect output" do
+			@config.inspect.should include( File.basename(@tmpfile.path) )
+		end
+
+		it "yields itself if a block is given at load-time" do
+			yielded_self = nil
+			config = Configurability::Config.load( @tmpfile.path ) do
+				yielded_self = self
+			end
+			yielded_self.should equal( config )
+		end
+
+		it "passes itself as the block argument if a block of arity 1 is given at load-time" do
+			arg_self = nil
+			yielded_self = nil
+			config = Configurability::Config.load( @tmpfile.path ) do |arg|
+				yielded_self = self
+				arg_self = arg
+			end
+			yielded_self.should_not equal( config )
+			arg_self.should equal( config )
+		end
+
 	end
 
 
@@ -191,9 +250,11 @@ describe Configurability::Config do
 
 
 		before(:each) do
+			old_date = Time.now - 3600
+			File.utime( old_date, old_date, @tmpfile.path )
 			@config = Configurability::Config.load( @tmpfile.path )
-			newdate = Time.now + 3600
-			File.utime( newdate, newdate, @tmpfile.path )
+			now = Time.now + 10
+			File.utime( now, now, @tmpfile.path )
 		end
 
 
@@ -211,6 +272,11 @@ describe Configurability::Config do
 			@config.reload
 		end
 
+		it "reapplies its defaults when reloading" do
+			config = Configurability::Config.load( @tmpfile.path, :defaultskey => 8 )
+			config.reload
+			config.defaultskey.should == 8
+		end
 	end
 
 
