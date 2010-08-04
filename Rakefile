@@ -76,7 +76,7 @@ elsif VERSION_FILE.exist?
 	PKG_VERSION = VERSION_FILE.read[ /VERSION\s*=\s*['"](\d+\.\d+\.\d+)['"]/, 1 ]
 end
 
-PKG_VERSION = '0.0.0' unless defined?( PKG_VERSION )
+PKG_VERSION = '0.0.0' unless defined?( PKG_VERSION ) && !PKG_VERSION.nil?
 
 PKG_FILE_NAME = "#{PKG_NAME.downcase}-#{PKG_VERSION}"
 GEM_FILE_NAME = "#{PKG_FILE_NAME}.gem"
@@ -168,7 +168,7 @@ include RakefileHelpers
 
 # Set the build ID if the mercurial executable is available
 if hg = which( 'hg' )
-	id = IO.read('|-') or exec hg.to_s, 'id', '-n'
+	id = `#{hg} id -n`.chomp
 	PKG_BUILD = "pre%03d" % [(id.chomp[ /^[[:xdigit:]]+/ ] || '1')]
 else
 	PKG_BUILD = 'pre000'
@@ -237,7 +237,11 @@ GEMSPEC   = Gem::Specification.new do |gem|
 
 	gem.summary           = PKG_SUMMARY
 	gem.description       = [
-		"Configurability is mixin that allows you to add configurability to one or more classes, assign them each a section of the configuration, and then when the configuration is loaded, the class is given the section it requested.",
+		"Configurability is a mixin that allows you to add ",
+		"configurability to one or more classes, assign them ",
+		"each a section of the configuration, and then when ",
+		"the configuration is loaded, the class is given the ",
+		"section it requested.",
   	  ].join( "\n" )
 
 	gem.authors           = "Michael Granger"
