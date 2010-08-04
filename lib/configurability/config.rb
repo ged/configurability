@@ -10,8 +10,28 @@ require 'configurability'
 
 # A configuration object class for systems with Configurability
 # 
-#@author Michael Granger <ged@FaerieMUD.org>
-#@author Mahlon E. Smith <mahlon@martini.nu>
+# @author Michael Granger <ged@FaerieMUD.org>
+# @author Mahlon E. Smith <mahlon@martini.nu>
+# 
+# This class also delegates some of its methods to the underlying struct:
+#
+# @see Configurability::Config::Struct#to_hash
+#      #to_hash (delegated to its internal Struct)
+# @see Configurability::Config::Struct#member?
+#      #member? (delegated to its internal Struct)
+# @see Configurability::Config::Struct#members
+#      #members (delegated to its internal Struct)
+# @see Configurability::Config::Struct#merge
+#      #merge (delegated to its internal Struct)
+# @see Configurability::Config::Struct#merge!
+#      #merge! (delegated to its internal Struct)
+# @see Configurability::Config::Struct#each
+#      #each (delegated to its internal Struct)
+# @see Configurability::Config::Struct#[]
+#      #[] (delegated to its internal Struct)
+# @see Configurability::Config::Struct#[]=
+#      #[]= (delegated to its internal Struct)
+# 
 class Configurability::Config
 	extend Forwardable
 
@@ -20,17 +40,16 @@ class Configurability::Config
 	###	C L A S S   M E T H O D S
 	#############################################################
 
-	### Read and return a Configurability::Config object from the given file or
-	### configuration source.
+	### Read and return a Configurability::Config object from the file at the given +path+.
 	### @param [String] path      the path to the config file
 	### @param [Hash]   defaults  a Hash of default config values which will be
 	###                           used if the config at +path+ doesn't override
 	###                           them.
-	def self::load( path, defaults=nil )
+	def self::load( path, defaults=nil, &block )
 		path = Pathname( path ).expand_path
 		source = path.read
 		Configurability.log.debug "Read %d bytes from %s" % [ source.length, path ]
-		return new( source, path, defaults )
+		return new( source, path, defaults, &block )
 	end
 
 
@@ -53,24 +72,45 @@ class Configurability::Config
 	### Create a new Configurability::Config object. If the optional +source+ argument
 	### is specified, parse the config from it.
 	### 
-	### @param []
-	### @param []
-	### @param []
-	def initialize( source=nil, name=nil, defaults=nil, &block )
+	### @param [String] source           the YAML source of the configuration
+	### @param [String, Pathname] path   the path to the config file (if loaded from a file)
+	### @param [Hash] defaults           a Hash containing default values which the loaded values
+	###                                  will be merged into.
+	### @yield  A passed block will be evaluated with the config object as 'self' after
+	###         the config is loaded.
+	def initialize( source=nil, path=nil, defaults=nil, &block )
 
-		if source
-			@struct = self.make_configstruct_from_source( source, defaults )
-		elsif defaults
-			confighash = Marshal.load( Marshal.dump(defaults) )
-			@struct = Configurability::Config::Struct.new( confighash )
-		else
-			@struct = Configurability::Config::Struct.new
+		# Shift the hash parameter if it shows up as the path
+		if path.is_a?( Hash )
+			defaults = path
+			path = nil
 		end
 
-		@time_created    = Time.now
-		@name            = name.to_s if name
+		# Make a deep copy of the defaults before loading so we don't modify
+		# the argument
+		@defaults     = Marshal.load( Marshal.dump(defaults) ) if defaults
+		@time_created = Time.now
+		@path         = path
 
-		self.instance_eval( &block ) if block
+		if source
+			@struct = self.make_configstruct_from_source( source, @defaults )
+		else
+			@struct = Configurability::Config::Struct.new( @defaults )
+		end
+
+		if block
+			Configurability.log.debug "Block arity is: %p" % [ block.arity ]
+
+			# A block with an argument is called with the config as the argument
+			# instead of instance_evaled
+			case block.arity
+			when 0, -1  # 1.9 and 1.8, respectively
+				Configurability.log.debug "Instance evaling in the context of %p" % [ self ]
+				self.instance_eval( &block )
+			else
+				block.call( self )
+			end
+		end
 	end
 
 
@@ -82,15 +122,14 @@ class Configurability::Config
 	def_delegators :@struct, :to_hash, :to_h, :member?, :members, :merge,
 		:merge!, :each, :[], :[]=
 
-	# The underlying config data structure
+	# @return [Configurability::Config::Struct] The underlying config data structure
 	attr_reader :struct
 
-	# The time the configuration was loaded
+	# @return [Time] The time the configuration was loaded
 	attr_accessor :time_created
 
-	# The name of the associated record stored on permanent storage for this
-	# configuration.
-	attr_accessor :name
+	# @return [Pathname] the path to the config file, if loaded from a file
+	attr_accessor :path
 
 
 	### Install this config object in any objects that have added
@@ -109,10 +148,10 @@ class Configurability::Config
 
 	### Write the configuration object using the specified name and any
 	### additional +args+.
-	def write( name=@name, *args )
+	def write( path=@path, *args )
 		raise ArgumentError,
-			"No name associated with this config." unless name
-		File.open( name, File::WRONLY|File::CREAT|File::TRUNC ) do |ofh|
+			"No name associated with this config." unless path
+		path.open( File::WRONLY|File::CREAT|File::TRUNC ) do |ofh|
 			ofh.print( self.dump )
 		end
 	end
@@ -137,12 +176,14 @@ class Configurability::Config
 	### returns nil.
 	def changed_reason
 		if @struct.dirty?
+			Configurability.log.debug "Changed_reason: struct was modified"
 			return "Struct was modified"
 		end
 
-		if self.name && self.is_older_than?( self.name )
+		if self.path && self.is_older_than?( self.path )
+			Configurability.log.debug "Source file (%s) has changed." % [ self.path ]
 			return "Config source (%s) has been updated since %s" %
-				[ self.name, self.time_created ]
+				[ self.path, self.time_created ]
 		end
 
 		return nil
@@ -151,9 +192,9 @@ class Configurability::Config
 
 	### Return +true+ if the specified +file+ is newer than the time the receiver
 	### was created.
-	def is_older_than?( file )
-		return false unless File.exists?( file )
-		st = File.stat( file )
+	def is_older_than?( path )
+		return false unless path.exist?
+		st = path.stat
 		Configurability.log.debug "File mtime is: %s, comparison time is: %s" %
 			[ st.mtime, @time_created ]
 		return st.mtime > @time_created
@@ -162,16 +203,29 @@ class Configurability::Config
 
 	### Reload the configuration from the original source if it has
 	### changed. Returns +true+ if it was reloaded and +false+ otherwise.
+	### 
 	def reload
-		return false unless @name
+		raise "can't reload from an in-memory source" unless self.path
 
 		self.time_created = Time.now
-		source = File.read( @name )
-		@struct = self.make_configstruct_from_source( source )
+		source = self.path.read
+		@struct = self.make_configstruct_from_source( source, @defaults )
 
 		self.install
 	end
 
+
+	### Return a human-readable, compact representation of the configuration
+	### suitable for debugging.
+	def inspect
+		return "#<%s:0x%0x16 loaded from %s; %d sections: %s>" % [
+			self.class.name,
+			self.object_id * 2,
+			self.path ? self.path : "memory",
+			self.struct.members.length,
+			self.struct.members.join( ', ' )
+		]
+	end
 
 
 	#########
@@ -289,8 +343,10 @@ class Configurability::Config
 		}
 
 
-		### Create a new ConfigStruct from the given +hash+.
-		def initialize( hash={} )
+		### Create a new ConfigStruct using the values from the given +hash+ if specified.
+		### @param [Hash] hash  a hash of config values
+		def initialize( hash=nil )
+			hash ||= {}
 			@hash = hash.dup
 			@dirty = false
 		end
@@ -403,6 +459,15 @@ class Configurability::Config
 			self.dup.merge!( other )
 		end
 
+
+		### Return a human-readable representation of the Struct suitable for debugging.
+		def inspect
+			return "#<%s:%0x16 %p>" % [
+				self.class.name,
+				self.object_id * 2,
+				@hash,
+			]
+		end
 
 
 		#########
