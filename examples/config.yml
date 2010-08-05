@@ -1,0 +1,25 @@
+--- 
+database: 
+  development: 
+    adapter: sqlite3
+    database: db/dev.db
+    pool: 5
+    timeout: 5000
+  testing: 
+    adapter: sqlite3
+    database: db/testing.db
+    pool: 2
+    timeout: 5000
+  production: 
+    adapter: postgres
+    database: fixedassets
+    pool: 25
+    timeout: 50
+ldap: 
+  uri: ldap://ldap.acme.com/dc=acme,dc=com
+  bind_dn: cn=web,dc=acme,dc=com
+  bind_pass: Mut@ge.Mix@ge
+branding: 
+  header: "#333"
+  title: "#dedede"
+  anchor: "#9fc8d4"

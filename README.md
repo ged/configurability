@@ -10,6 +10,7 @@ configuration is split up and sent to the objects that will use it.
 To add configurability to a class, just require the library and extend
 the class:
 
+    require 'configurability'
     class User
         extend Configurability
     end
@@ -38,9 +39,9 @@ the object that is being extended with all non-word characters converted into
 underscores (`_`) by default. It will also have any leading Ruby-style
 namespaces stripped, e.g.,
 
-		    MyClass            -> :myclass
-		    Acme::User         -> :user
-		    "J. Random Hacker" -> :j_random_hacker
+            MyClass            -> :myclass
+            Acme::User         -> :user
+            "J. Random Hacker" -> :j_random_hacker
 
 If the object responds to the `#name` method, then the return value of that
 method is used to derive the name. If it doesn't have a `#name` method, the
@@ -51,54 +52,6 @@ When the configuration is loaded, an instance variable called `@config` is set
 to the appropriate section of the config object for each object that has
 been extended with Configurability.
 
-
-## Configuration Objects
-
-Configurability also includes `Configurability::Config`, a fairly simple
-configuration object class that can be used to load a YAML configuration file,
-and then present both a Hash-like and a Struct-like interface for reading
-configuration sections and values.
-
-Here's a quick example to demonstrate some of its features. Suppose you have a
-config file that looks like this:
-
-	--
-	development:
-	  adapter: sqlite3
-	  database: db/development.sqlite3
-	  pool: 5
-	  timeout: 5000
-
-	test:
-	  adapter: sqlite3
-	  database: db/test.sqlite3
-	  pool: 5
-	  timeout: 5000
-
-	production:
-	  adapter: sqlite3
-	  database: db/production.sqlite3
-	  pool: 5
-	  timeout: 5000
-
-You can load this config like so:
-
-	require 'configurability/config'
-	config = Configurability::Config.load( 'config/database.yml' )
-	=> (Configurability::Config @struct=(Configurability::Config::Struct @hash={:development=>{:adapter=>"sqlite3", :database=>"db/development.sqlite3", :pool=>5, :timeout=>5000}, :test=>{:adapter=>"sqlite3", :database=>"db/test.sqlite3", :pool=>5, :timeout=>5000}, :production=>{:adapter=>"sqlite3", :database=>"db/production.sqlite3", :pool=>5, :timeout=>5000}} @dirty=false) @time_created=2010-08-04 10:29:00 -0700 @name="/Users/mgranger/temp/chumpy/config/database.yml")
-	irb(main):004:0> config.production
-	=> (Configurability::Config::Struct @hash={:adapter=>"sqlite3", :database=>"db/production.sqlite3", :pool=>5, :timeout=>5000} @dirty=false)
-	irb(main):005:0> config.production.db
-	=> (Configurability::Config::Struct @hash={} @dirty=false)
-	irb(main):006:0> config.production.adapter
-	=> "sqlite3"
-	irb(main):007:0> config.production.database
-	=> "db/production.sqlite3"
-	irb(main):008:0> config.production.pool
-	=> 5
-	irb(main):009:0> config.development.adapter
-	=> "sqlite3"
-	
 
 ## Customization
 
@@ -135,13 +88,115 @@ a `#configure` method that takes the config section as an argument:
     class WebServer
         extend Configurability
 
+        config_key :webserver
+
         def self::configure( configsection )
             @default_bind_addr = configsection[:host]
             @default_port = configsection[:port]
         end
     end
 
-If you still want the `config` variable to be set, just `super` from your implementation; don't if you don't want it to be set.
+If you still want the `@config` variable to be set, just `super` from your implementation; don't if you don't want it to be set.
+
+
+## Configuration Objects
+
+Configurability also includes `Configurability::Config`, a fairly simple
+configuration object class that can be used to load a YAML configuration file,
+and then present both a Hash-like and a Struct-like interface for reading
+configuration sections and values; it's meant to be used in tandem with Configurability, but it's also useful on its own.
+
+Here's a quick example to demonstrate some of its features. Suppose you have a
+config file that looks like this:
+
+    --- 
+    database: 
+      development: 
+        adapter: sqlite3
+        database: db/dev.db
+        pool: 5
+        timeout: 5000
+      testing: 
+        adapter: sqlite3
+        database: db/testing.db
+        pool: 2
+        timeout: 5000
+      production: 
+        adapter: postgres
+        database: fixedassets
+        pool: 25
+        timeout: 50
+    ldap: 
+      uri: ldap://ldap.acme.com/dc=acme,dc=com
+      bind_dn: cn=web,dc=acme,dc=com
+      bind_pass: Mut@ge.Mix@ge
+    branding: 
+      header: "#333"
+      title: "#dedede"
+      anchor: "#9fc8d4"
+
+You can load this config like so:
+
+    require 'configurability/config'
+    config = Configurability::Config.load( 'examples/config.yml' )
+    # => #<Configurability::Config:0x1018a7c7016 loaded from 
+        examples/config.yml; 3 sections: database, ldap, branding>
+
+And then access it using struct-like methods:
+
+    config.database
+    # => #<Configurability::Config::Struct:101806fb816
+        {:development=>{:adapter=>"sqlite3", :database=>"db/dev.db", :pool=>5,
+        :timeout=>5000}, :testing=>{:adapter=>"sqlite3",
+        :database=>"db/testing.db", :pool=>2, :timeout=>5000},
+        :production=>{:adapter=>"postgres", :database=>"fixedassets",
+        :pool=>25, :timeout=>50}}>
+
+    config.database.development.adapter
+    # => "sqlite3"
+
+    config.ldap.uri
+    # => "ldap://ldap.acme.com/dc=acme,dc=com"
+
+    config.branding.title
+    # => "#dedede"
+
+or using a Hash-like interface using either `Symbol`s, `String`s, or a mix of
+both:
+
+    config[:branding][:title]
+    # => "#dedede"
+
+    config['branding']['header']
+    # => "#333"
+
+    config['branding'][:anchor]
+    # => "#9fc8d4"
+
+You can install it via the Configurability interface:
+
+    config.install
+
+Check to see if the file it was loaded from has changed since you
+loaded it:
+
+    config.changed?
+    # => false
+
+    # Simulate changing the file by manually changing its mtime
+    File.utime( Time.now, Time.now, config.path )
+    config.changed?
+    # => true
+
+If it has changed (or even if it hasn't), you can reload it, which automatically re-installs it via the Configurability interface:
+
+    config.reload
+
+You can make modifications via the same Struct- or Hash-like interfaces and write the modified config back out to the same file:
+
+    config.database.testing.adapter = 'mysql'
+    config[:database]['testing'].database = 't_fixedassets'
+    config.write
 
 
 ## Development
