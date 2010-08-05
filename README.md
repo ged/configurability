@@ -196,7 +196,23 @@ You can make modifications via the same Struct- or Hash-like interfaces and writ
 
     config.database.testing.adapter = 'mysql'
     config[:database]['testing'].database = 't_fixedassets'
-    config.write
+
+then dump it to a YAML string:
+
+    config.dump
+	# => "--- \ndatabase: \n  development: \n    adapter: sqlite3\n   
+	 	database: db/dev.db\n    pool: 5\n    timeout: 5000\n  testing: \n   
+	 	adapter: mysql\n    database: t_fixedassets\n    pool: 2\n    timeout:
+	 	5000\n  production: \n    adapter: postgres\n    database:
+	 	fixedassets\n    pool: 25\n    timeout: 50\nldap: \n  uri:
+	 	ldap://ldap.acme.com/dc=acme,dc=com\n  bind_dn:
+	 	cn=web,dc=acme,dc=com\n  bind_pass: Mut@ge.Mix@ge\nbranding: \n 
+	 	header: \"#333\"\n  title: \"#dedede\"\n  anchor: \"#9fc8d4\"\n"
+
+or write it back to the file it was loaded from:
+
+	config.write
+
 
 
 ## Development

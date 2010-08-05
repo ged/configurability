@@ -238,6 +238,11 @@ describe Configurability::Config do
 			arg_self.should equal( config )
 		end
 
+		it "doesn't re-read its source file if it hasn't changed" do
+			@config.path.should_not_receive( :read )
+			Configurability.should_not_receive( :configure_objects )
+			@config.reload.should be_false()
+		end
 	end
 
 
@@ -264,17 +269,18 @@ describe Configurability::Config do
 
 
 		### Specifications
-		it "should report that it is changed" do
+		it "reports that it is changed" do
 			@config.should be_changed
 		end
 
-		it "should report that its source was updated as the reason for the change" do
+		it "reports that its source was updated as the reason for the change" do
 			@config.changed_reason.should =~ /source.*updated/i
 		end
 
-		it "should be able to be reloaded" do
+		it "re-reads its file when reloaded" do
+			@config.path.should_receive( :read ).and_return( TEST_CONFIG )
 			Configurability.should_receive( :configure_objects ).with( @config )
-			@config.reload
+			@config.reload.should be_true()
 		end
 
 		it "reapplies its defaults when reloading" do

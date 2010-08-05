@@ -45,6 +45,7 @@ class Configurability::Config
 	### @param [Hash]   defaults  a Hash of default config values which will be
 	###                           used if the config at +path+ doesn't override
 	###                           them.
+	### @param          block     passed through as the block argument to {#initialize}.
 	def self::load( path, defaults=nil, &block )
 		path = Pathname( path ).expand_path
 		source = path.read
@@ -76,8 +77,9 @@ class Configurability::Config
 	### @param [String, Pathname] path   the path to the config file (if loaded from a file)
 	### @param [Hash] defaults           a Hash containing default values which the loaded values
 	###                                  will be merged into.
-	### @yield  A passed block will be evaluated with the config object as 'self' after
-	###         the config is loaded.
+	### @yield  The block will be evaluated in the context of the config object after
+	###         the config is loaded, unless it accepts an argument, in which case the config
+	###         object is passed as the argument.
 	def initialize( source=nil, path=nil, defaults=nil, &block )
 
 		# Shift the hash parameter if it shows up as the path
@@ -207,11 +209,16 @@ class Configurability::Config
 	def reload
 		raise "can't reload from an in-memory source" unless self.path
 
-		self.time_created = Time.now
-		source = self.path.read
-		@struct = self.make_configstruct_from_source( source, @defaults )
+		if self.changed?
+			self.time_created = Time.now
+			source = self.path.read
+			@struct = self.make_configstruct_from_source( source, @defaults )
 
-		self.install
+			self.install
+			return true
+		else
+			return false
+		end
 	end
 
 

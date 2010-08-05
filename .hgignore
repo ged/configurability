@@ -3,3 +3,4 @@
 \.DS_Store
 ChangeLog
 pkg/
+^commit\-msg\.txt$
