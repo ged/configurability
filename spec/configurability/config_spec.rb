@@ -87,6 +87,11 @@ describe Configurability::Config do
 		arg_self.should equal( config )
 	end
 
+	it "supports both Symbols and Strings for Hash-like access" do
+		config = Configurability::Config.new( TEST_CONFIG )
+		config[:section]['subsection'][:subsubsection].should == 'value'
+	end
+
 
 	describe "created with in-memory YAML source" do
 

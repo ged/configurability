@@ -357,11 +357,40 @@ class Configurability::Config
 		######
 
 		# Forward some methods to the internal hash
-		def_delegators :@hash, :keys, :key?, :values, :value?, :[], :[]=, :length,
+		def_delegators :@hash, :keys, :key?, :values, :value?, :length,
 		    :empty?, :clear, :each
 
 		# Let :each be called as :each_section, too
 		alias_method :each_section, :each
+
+
+		### Return the value associated with the specified +key+.
+		### @param [Symbol, String] key  the key of the value to return
+		### @return [Object] the value associated with +key+, or another
+		###                  Configurability::Config::ConfigStruct if +key+
+		###                  is a section name.
+		def []( key )
+			key = key.untaint.to_sym
+
+			# Create the config struct on the fly for subsections
+			if !@hash.key?( key )
+				@hash[ key ] = self.class.new
+			elsif @hash[ key ].is_a?( Hash )
+				@hash[ key ] = self.class.new( @hash[key] )
+			end
+
+			return @hash[ key ]
+		end
+
+
+		### Set the value associated with the specified +key+ to +value+.
+		### @param [Symbol, String] key    the key of the value to set
+		### @param [Object]         value  the value to set
+		def []=( key, value )
+			key = key.untaint.to_sym
+			self.mark_dirty if @hash[ key ] != value
+			@hash[ key ] = value
+		end
 
 
 		### Mark the struct has having been modified since its creation.
@@ -498,25 +527,15 @@ class Configurability::Config
 		### @param [Symbol] key  the config key to create the reader method body for
 		### @return [Proc] the body of the new method
 		def create_member_reader( key )
-			return lambda do
-
-				# Create the config struct on the fly for subsections
-				if !@hash.key?( key )
-					@hash[ key ] = self.class.new
-				elsif @hash[ key ].is_a?( Hash )
-					@hash[ key ] = self.class.new( @hash[key] )
-				end
-
-				@hash[ key ]
-			end
+			return lambda { self[key] }
 		end
 
 
 		### Create a predicate method for the specified +key+ and return it.
 		### @param [Symbol] key  the config key to create the predicate method body for
-		### @return [Proc] the body of the new method
+ 		### @return [Proc] the body of the new method
 		def create_member_predicate( key )
-			return lambda { @hash[key] ? true : false }
+			return lambda { self[key] ? true : false }
 		end
 
 
@@ -524,10 +543,7 @@ class Configurability::Config
 		### @param [Symbol] key  the config key to create the writer method body for
 		### @return [Proc] the body of the new method
 		def create_member_writer( key )
-			return lambda do |val|
-				self.mark_dirty if @hash[ key ] != val
-				@hash[ key ] = val
-			end
+			return lambda {|val| self[key] = val }
 		end
 
 	end # class Struct
