@@ -12,8 +12,8 @@ BEGIN {
 require 'tempfile'
 require 'logger'
 require 'fileutils'
+require 'rspec'
 
-require 'spec'
 require 'spec/lib/helpers'
 
 require 'configurability/config'
