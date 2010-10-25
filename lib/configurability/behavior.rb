@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'configurability'
-require 'spec'
+require 'rspec'
 
 share_examples_for "an object with Configurability" do
 
