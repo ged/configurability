@@ -4,6 +4,7 @@ excluded_pkgfiles: []
 project_pubdir: /usr/local/www/public/code
 project_pubhost: deveiate.org
 project_homepage: http://bitbucket.org/ged/configurability
+gem_pubhost: rubygems.org
 project_requirements: {}
 
 release_smtphost: mail.faeriemud.org
@@ -20,6 +21,7 @@ project_summary: A configurability mixin for Ruby
 version_file: configurability.rb
 additional_pkgfiles: []
 
+required_ruby_version: ""
 dev_dependencies: {}
 
 authors: 
