@@ -14,11 +14,15 @@ module Configurability
 	# Version-control revision constant
 	REVISION = %q$Revision$
 
-	require 'configurability/logformatter.rb'
+	require 'configurability/logformatter'
+	require 'configurability/deferredconfig'
 
 
 	### The objects that have had Configurability added to them
 	@configurable_objects = []
+
+	### The loaded config (if there is one)
+	@loaded_config = nil
 
 	### Logging
 	@default_logger = Logger.new( $stderr )
@@ -35,6 +39,10 @@ module Configurability
 		# @return [Array] the Array of objects that have had Configurability 
 		# added to them
 		attr_accessor :configurable_objects
+
+		# @return [Object] the loaded configuration (after ::configure_objects
+		# has been called at least once)
+		attr_accessor :loaded_config
 
 		# @return [Logger::Formatter] the log formatter that will be used when the logging 
 		#    subsystem is reset
@@ -55,6 +63,13 @@ module Configurability
 		self.log.debug "Adding Configurability to %p" % [ object ]
 		super
 		self.configurable_objects << object
+
+		# If the config has already been propagated, add deferred configuration to the extending
+		# object in case it overrides #configure later.
+		if (( config = self.loaded_config ))
+			self.install_config( config, object )
+			object.extend( Configurability::DeferredConfig )
+		end
 	end
 
 
@@ -69,7 +84,9 @@ module Configurability
 	### object itself doesn't have a name, the name of its class will be used instead.
 	def self::make_key_from_object( object )
 		if object.respond_to?( :name )
-			return object.name.sub( /.*::/, '' ).gsub( /\W+/, '_' ).downcase.to_sym
+			name = object.name
+			name = 'anonymous' if name.nil? || name.empty?
+			return name.sub( /.*::/, '' ).gsub( /\W+/, '_' ).downcase.to_sym
 		elsif object.class.name && !object.class.name.empty?
 			return object.class.name.sub( /.*::/, '' ).gsub( /\W+/, '_' ).downcase.to_sym
 		else
@@ -87,23 +104,17 @@ module Configurability
 		self.log.debug "Splitting up config %p between %d objects with configurability." %
 			[ config, self.configurable_objects.length ]
 
-		self.configurable_objects.each do |obj|
-			section = obj.config_key.to_sym
-			self.log.debug "Configuring %p with the %p section of the config." %
-				[ obj, section ]
+		self.loaded_config = config
 
-			if config.respond_to?( section )
-				self.log.debug "  config has a %p method; using that" % [ section ]
-				obj.configure( config.send(section) )
-			elsif config.respond_to?( :[] )
-				self.log.debug "  config has a an index operator method; using that"
-				obj.configure( config[section] || config[section.to_s] )
-			else
-				self.log.warn "  don't know how to get the %p section of the config from %p" %
-					[ section, config ]
-				obj.configure( nil )
-			end
+		self.configurable_objects.each do |obj|
+			self.install_config( config, obj )
 		end
+	end
+
+
+	### If a configuration has been loaded (via {#configure_objects}), clear it.
+	def self::reset
+		self.loaded_config = nil
 	end
 
 
@@ -115,6 +126,25 @@ module Configurability
 		self.logger.formatter = self.default_log_formatter
 	end
 
+
+	### Install the appropriate section of the +config+ into the given +object+.
+	def self::install_config( config, object )
+		section = object.config_key.to_sym
+		self.log.debug "Configuring %p with the %p section of the config." %
+			[ object, section ]
+
+		if config.respond_to?( section )
+			self.log.debug "  config has a %p method; using that" % [ section ]
+			object.configure( config.send(section) )
+		elsif config.respond_to?( :[] )
+			self.log.debug "  config has a an index operator method; using that"
+			object.configure( config[section] || config[section.to_s] )
+		else
+			self.log.warn "  don't know how to get the %p section of the config from %p" %
+				[ section, config ]
+			object.configure( nil )
+		end
+	end
 
 
 	#############################################################

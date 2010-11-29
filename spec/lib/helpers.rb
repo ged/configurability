@@ -10,6 +10,8 @@ BEGIN {
 	$LOAD_PATH.unshift( libdir.to_s ) unless $LOAD_PATH.include?( libdir.to_s )
 }
 
+require 'rspec'
+
 require 'logger'
 require 'erb'
 require 'yaml'
@@ -132,6 +134,11 @@ module Configurability::SpecHelpers
 
 end
 
+
+RSpec.configure do |config|
+	config.mock_with( :rspec )
+	config.include( Configurability::SpecHelpers )
+end
 
 # vim: set nosta noet ts=4 sw=4:
 
