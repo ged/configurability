@@ -15,6 +15,7 @@ require 'rspec'
 require 'spec/lib/helpers'
 
 require 'configurability'
+require 'configurability/config'
 
 
 #####################################################################
@@ -30,6 +31,7 @@ describe Configurability do
 
 	after( :each ) do
 		Configurability.configurable_objects.clear
+		Configurability.reset
 	end
 
 
@@ -49,7 +51,7 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		config = stub( "configuration object" )
+		config = mock( "configuration object" )
 		config.should_receive( :respond_to? ).with( :testconfig ).and_return( true )
 		config.should_receive( :testconfig ).and_return( :a_config_section )
 
@@ -63,7 +65,7 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		config = stub( "configuration object" )
+		config = mock( "configuration object" )
 		config.should_receive( :respond_to? ).with( :testconfig ).and_return( true )
 		config.should_receive( :testconfig ).and_return( :a_config_section )
 
@@ -78,7 +80,7 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		config = stub( "configuration object" )
+		config = mock( "configuration object" )
 		config.should_receive( :respond_to? ).with( :testconfig ).and_return( false )
 		config.should_receive( :respond_to? ).with( :[] ).and_return( true )
 		config.should_receive( :[] ).with( :testconfig ).and_return( :a_config_section )
@@ -94,7 +96,7 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		config = stub( "configuration object" )
+		config = mock( "configuration object" )
 		config.should_receive( :respond_to? ).with( :testconfig ).and_return( false )
 		config.should_receive( :respond_to? ).with( :[] ).and_return( false )
 
@@ -109,7 +111,7 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		config = stub( "configuration object" )
+		config = mock( "configuration object" )
 		config.should_receive( :respond_to? ).with( :testconfig ).and_return( false )
 		config.should_receive( :respond_to? ).with( :[] ).and_return( true )
 		config.should_receive( :[] ).with( :testconfig ).and_return( nil )
@@ -125,7 +127,7 @@ describe Configurability do
 		object.extend( Configurability )
 		object.config_key = :testobjconfig
 
-		config = stub( "configuration object" )
+		config = mock( "configuration object" )
 		config.should_receive( :respond_to? ).with( :testobjconfig ).and_return( true )
 		config.should_receive( :testobjconfig ).and_return( :a_config_section )
 
@@ -140,7 +142,7 @@ describe Configurability do
 		def object.name; "testobjconfig"; end
 		object.extend( Configurability )
 
-		config = stub( "configuration object" )
+		config = mock( "configuration object" )
 		config.should_receive( :respond_to? ).with( :testobjconfig ).and_return( true )
 		config.should_receive( :testobjconfig ).and_return( :a_config_section )
 
@@ -154,7 +156,7 @@ describe Configurability do
 		def object.name; "Test Obj-Config"; end
 		object.extend( Configurability )
 
-		config = stub( "configuration object" )
+		config = mock( "configuration object" )
 		config.should_receive( :respond_to? ).with( :test_obj_config ).and_return( true )
 		config.should_receive( :test_obj_config ).and_return( :a_config_section )
 
@@ -168,7 +170,7 @@ describe Configurability do
 		object = Object.new
 		object.extend( Configurability )
 
-		config = stub( "configuration object" )
+		config = mock( "configuration object" )
 		config.should_receive( :respond_to? ).with( :object ).and_return( true )
 		config.should_receive( :object ).and_return( :a_config_section )
 
@@ -184,7 +186,7 @@ describe Configurability do
 			end
 		end
 
-		config = stub( "configuration object" )
+		config = mock( "configuration object" )
 		config.should_receive( :respond_to? ).with( :dbobject ).and_return( true )
 		config.should_receive( :dbobject ).and_return( :a_config_section )
 
@@ -199,13 +201,58 @@ describe Configurability do
 		object = objectclass.new
 		object.extend( Configurability )
 
-		config = stub( "configuration object" )
+		config = mock( "configuration object" )
 		config.should_receive( :respond_to? ).with( :anonymous ).and_return( true )
 		config.should_receive( :anonymous ).and_return( :a_config_section )
 
 		object.should_receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
+	end
+
+
+	context "after installation of a config object" do
+
+		before( :each ) do
+			@config = Configurability::Config.new
+			@config.postconfig = :yes
+			Configurability.configure_objects( @config )
+		end
+
+		after( :each ) do
+			Configurability.reset
+		end
+
+
+		it "should know what the currently-installed configuration is" do
+			Configurability.loaded_config.should equal( @config )
+		end
+
+		it "propagates the installed configuration to any objects which add Configurability" do
+			objectclass = Class.new do
+				def initialize; @config = nil; end
+				attr_reader :config
+				def name; "postconfig"; end
+				def configure( config ); @config = config; end
+			end
+
+			object = objectclass.new
+			object.extend( Configurability )
+			object.config.should == :yes
+		end
+
+		it "defers configuration until after an object has defined a #configure method if " +
+		   "it adds Configurability before declaring one" do
+			objectclass = Class.new do
+				extend Configurability
+				config_key :postconfig
+				def self::configure( config ); @config = config; end
+				class << self; attr_reader :config; end
+			end
+
+			objectclass.config.should == :yes
+		end
+
 	end
 
 end
