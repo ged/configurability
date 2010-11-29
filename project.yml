@@ -8,6 +8,9 @@ gem_pubhost: rubygems.org
 project_requirements: {}
 
 release_smtphost: mail.faeriemud.org
+project_licenses: 
+- BSD
+
 project_description: |-
   Configurability is a mixin that allows you to add 
   configurability to one or more classes, assign them 
@@ -21,7 +24,7 @@ project_summary: A configurability mixin for Ruby
 version_file: configurability.rb
 additional_pkgfiles: []
 
-required_ruby_version: ""
+required_ruby_version: ">= 1.8.7"
 dev_dependencies: {}
 
 authors: 

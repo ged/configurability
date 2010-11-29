@@ -42,6 +42,7 @@ rescue LoadError
 	end
 end
 
+require 'pathname'
 require 'rbconfig'
 require 'rake'
 require 'rake/testtask'
@@ -189,7 +190,6 @@ RDOC_OPTIONS = [
   ]
 YARD_OPTIONS = [
 	'--use-cache',
-	'--no-private',
 	'--protected',
 	'-r', README_FILE,
 	'--exclude', 'extconf\\.rb',
@@ -217,16 +217,15 @@ DEPENDENCIES = {
 
 # Developer Gem dependencies: gemname => version
 DEVELOPMENT_DEPENDENCIES = {
-	'rake'         => '>= 0.8.7',
-	'rcodetools'   => '>= 0.7.0.0',
-	'rcov'         => '>= 0.8.1.2.0',
-	'rdoc'         => '>= 2.4.3',
-	'RedCloth'     => '>= 4.0.3',
-	'rspec'        => '>= 1.2.6',
-	'ruby-termios' => '>= 0.9.6',
-	'text-format'  => '>= 1.0.0',
-	'tmail'        => '>= 1.2.3.1',
-	'diff-lcs'     => '>= 1.1.2',
+	'rake'          => '~> 0.8.7',
+	'rcodetools'    => '~> 0.7.0.0',
+	'rcov'          => '~> 0.8.1.2.0',
+	'yard'          => '~> 0.6.1',
+	'RedCloth'      => '~> 4.2.3',
+	'rspec'         => '~> 2.0.1',
+	'ruby-termios'  => '~> 0.9.6',
+	'text-format'   => '~> 1.0.0',
+	'tmail'         => '~> 1.2.3.1',
 }
 
 # Non-gem requirements: packagename => version
@@ -247,9 +246,10 @@ GEMSPEC   = Gem::Specification.new do |gem|
 		"section it requested.",
   	  ].join( "\n" )
 
-	gem.authors           = "Michael Granger"
+	gem.authors           = ["Michael Granger"]
 	gem.email             = ["ged@FaerieMUD.org"]
 	gem.homepage          = 'http://bitbucket.org/ged/configurability'
+	gem.licenses          = ["BSD"]
 
 	gem.has_rdoc          = true
 	gem.rdoc_options      = RDOC_OPTIONS
@@ -271,6 +271,8 @@ GEMSPEC   = Gem::Specification.new do |gem|
 	gem.signing_key       = '/Volumes/Keys/ged-private_gem_key.pem'
 	gem.cert_chain        = [File.expand_path('~/.gem/ged-public_gem_cert.pem')]
 
+
+	gem.required_ruby_version = '>= 1.8.7'
 
 	DEPENDENCIES.each do |name, version|
 		version = '>= 0' if version.length.zero?
