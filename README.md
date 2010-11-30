@@ -222,7 +222,10 @@ the project page:
 
 > http://bitbucket.org/ged/configurability
 
-or clone it with Mercurial from the same address.
+or clone it with Mercurial from the same address. If you prefer Git, there is 
+also a mirror of the repo on Github:
+
+> https://github.com/ged/configurability
 
 
 ## License
