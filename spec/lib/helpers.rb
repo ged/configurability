@@ -10,12 +10,16 @@ BEGIN {
 	$LOAD_PATH.unshift( libdir.to_s ) unless $LOAD_PATH.include?( libdir.to_s )
 }
 
+require 'simplecov'
 require 'rspec'
 
 require 'logger'
 require 'erb'
 require 'yaml'
 
+SimpleCov.start do
+	add_filter '/spec/'
+end
 require 'configurability'
 
 

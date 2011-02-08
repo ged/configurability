@@ -4,3 +4,5 @@
 ChangeLog
 pkg/
 ^commit\-msg\.txt$
+^coverage/
+^doc/
