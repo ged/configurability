@@ -1,9 +1,20 @@
 # Configurability
 
+* http://bitbucket.org/ged/configurability
+
+
+## Description
+
 Configurability is a mixin that allows you to add configurability to one or
 more objects or classes. You can assign them each a subsection of the
 configuration, and then later, when the configuration is loaded, the
 configuration is split up and sent to the objects that will use it.
+
+
+## Installation
+
+    gem install configurability
+
 
 ## Usage
 
@@ -214,20 +225,23 @@ or write it back to the file it was loaded from:
 	config.write
 
 
-
 ## Development
 
-You can submit bug reports, suggestions, and read more about future plans at
-the project page:
+You can submit bug reports, suggestions, clone it with Mercurial, and read
+more about future plans at [the project page][projectpage]. If you prefer Git,
+there is also a [Github mirror][gitmirror].
 
-> http://bitbucket.org/ged/configurability
+After checking out the source, run:
 
-or clone it with Mercurial from the same address.
+    $ rake newb
+
+This task will install any missing dependencies, run the tests/specs,
+and generate the API documentation.
 
 
 ## License
 
-Copyright (c) 2010, Michael Granger
+Copyright (c) 2010, 2011  Michael Granger
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -254,4 +268,8 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+[projectpage]:http://bitbucket.org/ged/configurability
+[gitmirror]:https://github.com/ged/configurability
 
