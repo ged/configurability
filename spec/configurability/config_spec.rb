@@ -94,22 +94,33 @@ describe Configurability::Config do
 	end
 
 
-	NIL_KEY_CONFIG = %{
-	---
-	trap_on:
-	  "low disk space alert":
-	    ~:
-	      notepad:
-	        patterns:
-	          - pattern1
-	          - pattern2
-	}.gsub(/^\t/, '')
+	context "a config with nil keys" do
 
-	it "handles nil as a key in the configuration (issue #1)" do
-		config = Configurability::Config.new( NIL_KEY_CONFIG )
-		config[:trap_on]['low disk space alert'][nil][:notepad][:patterns].should == [ 'pattern1', 'pattern2' ]
+		NIL_KEY_CONFIG = %{
+		---
+		trap_on:
+		  "low disk space alert":
+		    ~:
+		      notepad:
+		        patterns:
+		          - pattern1
+		          - pattern2
+		}.gsub(/^\t{2}/, '')
+
+		before( :each ) do
+			@config = Configurability::Config.new( NIL_KEY_CONFIG )
+		end
+
+		it "doesn't raise a NoMethodError when loading (issue #1)" do
+			@config[:trap_on]['low disk space alert'][nil][:notepad][:patterns].
+				should == [ 'pattern1', 'pattern2' ]
+		end
+
+		it "knows that it has a nil member" do
+			@config[:trap_on]['low disk space alert'].should have_member( nil )
+		end
+
 	end
-
 
 	describe "created with in-memory YAML source" do
 
