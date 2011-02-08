@@ -21,7 +21,8 @@ hoespec = Hoe.spec 'configurability' do
 	self.developer 'Michael Granger', 'ged@FaerieMUD.org'
 
 	self.extra_dev_deps.push *{
-		'rspec' => '~> 2.4',
+		'rspec'     => '~> 2.4',
+		'simplecov' => '~> 0.3',
 	}
 
 	self.spec_extras[:licenses] = ["BSD"]
