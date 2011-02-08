@@ -458,8 +458,10 @@ class Configurability::Config
 		### Returns +true+ if the given +name+ is the name of a member of
 		### the receiver.
 		def member?( name )
-			return @hash.key?( name.to_s.to_sym )
+			name = name.to_sym if name.respond_to?( :to_sym )
+			return @hash.key?( name )
 		end
+		alias_method :has_member?, :member?
 
 
 		### Merge the specified +other+ object with this config struct. The
