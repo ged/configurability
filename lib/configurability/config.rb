@@ -303,10 +303,12 @@ class Configurability::Config
 	def symbolify_keys( hash )
 		newhash = {}
 		hash.each do |key,val|
+			key = key.to_sym if key.respond_to?( :to_sym )
+
 			if val.is_a?( Hash )
-				newhash[ key.to_sym ] = symbolify_keys( val )
+				newhash[ key ] = symbolify_keys( val )
 			else
-				newhash[ key.to_sym ] = val
+				newhash[ key ] = val
 			end
 		end
 
@@ -377,7 +379,7 @@ class Configurability::Config
 		###                  Configurability::Config::ConfigStruct if +key+
 		###                  is a section name.
 		def []( key )
-			key = key.untaint.to_sym
+			key = key.untaint.to_sym if key.respond_to?( :to_sym )
 
 			# Create the config struct on the fly for subsections
 			if !@hash.key?( key )
