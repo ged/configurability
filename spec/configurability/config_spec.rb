@@ -94,6 +94,23 @@ describe Configurability::Config do
 	end
 
 
+	NIL_KEY_CONFIG = %{
+	---
+	trap_on:
+	  "low disk space alert":
+	    ~:
+	      notepad:
+	        patterns:
+	          - pattern1
+	          - pattern2
+	}.gsub(/^\t/, '')
+
+	it "handles nil as a key in the configuration (issue #1)" do
+		config = Configurability::Config.new( NIL_KEY_CONFIG )
+		config[:trap_on]['low disk space alert'][nil][:notepad][:patterns].should == [ 'pattern1', 'pattern2' ]
+	end
+
+
 	describe "created with in-memory YAML source" do
 
 		before(:each) do

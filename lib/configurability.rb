@@ -9,7 +9,7 @@ require 'yaml'
 module Configurability
 
 	# Library version constant
-	VERSION = '1.0.2'
+	VERSION = '1.0.4'
 
 	# Version-control revision constant
 	REVISION = %q$Revision$
