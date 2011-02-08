@@ -1,3 +1,15 @@
+## 1.0.5 [2011-02-08] Michael Granger <ged@FaerieMUD.org>
+
+Bugfixes:
+
+* Now handles config files with nil keys correctly.
+
+
+## 1.0.4 [2010-11-29] Michael Granger <ged@FaerieMUD.org>
+
+Packaging fix.
+
+
 ## 1.0.3 [2010-11-29] Michael Granger <ged@FaerieMUD.org>
 
 Enchancements:
