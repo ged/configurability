@@ -1,3 +1,11 @@
+## 1.0.6 [2011-03-03] Michael Granger <ged@FaerieMUD.org>
+
+Bugfixes:
+
+* Fixed predicate methods for missing sections/values, which previously returned
+  `true` as well.
+
+
 ## 1.0.5 [2011-02-08] Michael Granger <ged@FaerieMUD.org>
 
 Bugfixes:
