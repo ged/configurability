@@ -546,7 +546,7 @@ class Configurability::Config
 		### @param [Symbol] key  the config key to create the predicate method body for
  		### @return [Proc] the body of the new method
 		def create_member_predicate( key )
-			return lambda { self[key] ? true : false }
+			return lambda { self.member?( key ) && self[key] ? true : false }
 		end
 
 
