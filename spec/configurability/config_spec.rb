@@ -93,6 +93,16 @@ describe Configurability::Config do
 		config[:section]['subsection'][:subsubsection].should == 'value'
 	end
 
+	it "autoloads predicates for its members" do
+		config = Configurability::Config.new( TEST_CONFIG )
+		config.mergekey?.should be_true()
+		config.mergemonkey?.should be_false()
+		config.section?.should be_true()
+		config.section.subsection?.should be_true()
+		config.section.subsection.subsubsection?.should be_true()
+		config.section.monkeysubsection?.should be_false()
+	end
+
 
 	context "a config with nil keys" do
 
@@ -122,7 +132,8 @@ describe Configurability::Config do
 
 	end
 
-	describe "created with in-memory YAML source" do
+
+	context "created with in-memory YAML source" do
 
 		before(:each) do
 			@config = Configurability::Config.new( TEST_CONFIG )
@@ -194,7 +205,7 @@ describe Configurability::Config do
 
 
 	# saving if changed since loaded
-	describe " whose internal values have been changed since loaded" do
+	context " whose internal values have been changed since loaded" do
 		before(:each) do
 			@config = Configurability::Config.new( TEST_CONFIG )
 			@config.section.subsection.anothersection = 11451
@@ -214,7 +225,7 @@ describe Configurability::Config do
 
 
 	# loading from a file
-	describe " loaded from a file" do
+	context " loaded from a file" do
 		before(:all) do
 			@tmpfile = Tempfile.new( 'test.conf', '.' )
 			@tmpfile.print( TEST_CONFIG )
@@ -276,7 +287,7 @@ describe Configurability::Config do
 
 
 	# reload if file changes
-	describe " whose file changes after loading" do
+	context " whose file changes after loading" do
 		before(:all) do
 			@tmpfile = Tempfile.new( 'test.conf', '.' )
 			@tmpfile.print( TEST_CONFIG )
@@ -321,7 +332,7 @@ describe Configurability::Config do
 
 
 	# merging
-	describe " created by merging two other configs" do
+	context " created by merging two other configs" do
 		before(:each) do
 			@config1 = Configurability::Config.new
 			@config2 = Configurability::Config.new( TEST_CONFIG )
