@@ -1,3 +1,8 @@
+== v1.0.7 [2011-10-13] Michael Granger <ged@FaerieMUD.org>
+
+- De-Yard and fix some other documentation/packaging issues.
+
+
 == v1.0.6 [2011-03-03] Michael Granger <ged@FaerieMUD.org>
 
 Bugfixes:
