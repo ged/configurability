@@ -10,26 +10,28 @@ require 'configurability'
 
 # A configuration object class for systems with Configurability
 # 
-# @author Michael Granger <ged@FaerieMUD.org>
-# @author Mahlon E. Smith <mahlon@martini.nu>
+# == Author/s
+#
+# * Michael Granger <ged@FaerieMUD.org>
+# * Mahlon E. Smith <mahlon@martini.nu>
 # 
 # This class also delegates some of its methods to the underlying struct:
 #
-# @see Configurability::Config::Struct#to_hash
+# [Configurability::Config::Struct#to_hash]
 #      #to_hash (delegated to its internal Struct)
-# @see Configurability::Config::Struct#member?
+# [Configurability::Config::Struct#member?]
 #      #member? (delegated to its internal Struct)
-# @see Configurability::Config::Struct#members
+# [Configurability::Config::Struct#members]
 #      #members (delegated to its internal Struct)
-# @see Configurability::Config::Struct#merge
+# [Configurability::Config::Struct#merge]
 #      #merge (delegated to its internal Struct)
-# @see Configurability::Config::Struct#merge!
+# [Configurability::Config::Struct#merge!]
 #      #merge! (delegated to its internal Struct)
-# @see Configurability::Config::Struct#each
+# [Configurability::Config::Struct#each]
 #      #each (delegated to its internal Struct)
-# @see Configurability::Config::Struct#[]
+# [Configurability::Config::Struct#[]]
 #      #[] (delegated to its internal Struct)
-# @see Configurability::Config::Struct#[]=
+# [Configurability::Config::Struct#[]=]
 #      #[]= (delegated to its internal Struct)
 # 
 class Configurability::Config
@@ -41,11 +43,6 @@ class Configurability::Config
 	#############################################################
 
 	### Read and return a Configurability::Config object from the file at the given +path+.
-	### @param [String] path      the path to the config file
-	### @param [Hash]   defaults  a Hash of default config values which will be
-	###                           used if the config at +path+ doesn't override
-	###                           them.
-	### @param          block     passed through as the block argument to {#initialize}.
 	def self::load( path, defaults=nil, &block )
 		path = Pathname( path ).expand_path
 		source = path.read
@@ -55,9 +52,6 @@ class Configurability::Config
 
 
 	### Recursive hash-merge function. Used as the block argument to a Hash#merge.
-	### @param [Symbol]  key     the key that's in conflict
-	### @param [Object]  oldval  the value in the original Hash
-	### @param [Object]  newval  the value in the Hash being merged
 	def self::merge_complex_hashes( key, oldval, newval )
 		return oldval.merge( newval, &method(:merge_complex_hashes) ) if
 			oldval.is_a?( Hash ) && newval.is_a?( Hash )
@@ -72,14 +66,9 @@ class Configurability::Config
 
 	### Create a new Configurability::Config object. If the optional +source+ argument
 	### is specified, parse the config from it.
-	### 
-	### @param [String] source           the YAML source of the configuration
-	### @param [String, Pathname] path   the path to the config file (if loaded from a file)
-	### @param [Hash] defaults           a Hash containing default values which the loaded values
-	###                                  will be merged into.
-	### @yield  The block will be evaluated in the context of the config object after
-	###         the config is loaded, unless it accepts an argument, in which case the config
-	###         object is passed as the argument.
+	### If one is given, the block will be evaluated in the context of the config object after
+	### the config is loaded, unless it accepts an argument, in which case the config
+	### object is passed as the argument.
 	def initialize( source=nil, path=nil, defaults=nil, &block )
 
 		# Shift the hash parameter if it shows up as the path
@@ -124,13 +113,13 @@ class Configurability::Config
 	def_delegators :@struct, :to_hash, :to_h, :member?, :members, :merge,
 		:merge!, :each, :[], :[]=
 
-	# @return [Configurability::Config::Struct] The underlying config data structure
+	# The underlying config data structure
 	attr_reader :struct
 
-	# @return [Time] The time the configuration was loaded
+	# The time the configuration was loaded
 	attr_accessor :time_created
 
-	# @return [Pathname] the path to the config file, if loaded from a file
+	# the path to the config file, if loaded from a file
 	attr_accessor :path
 
 
@@ -205,7 +194,6 @@ class Configurability::Config
 
 	### Reload the configuration from the original source if it has
 	### changed. Returns +true+ if it was reloaded and +false+ otherwise.
-	### 
 	def reload
 		raise "can't reload from an in-memory source" unless self.path
 
@@ -241,8 +229,6 @@ class Configurability::Config
 
 
 	### Read in the specified +filename+ and return a config struct.
-	### @param [String]  source  the YAML source to be converted
-	### @return [Configurability::Config::Struct]  the converted config struct
 	def make_configstruct_from_source( source, defaults=nil )
 		defaults ||= {}
 		mergefunc = Configurability::Config.method( :merge_complex_hashes )
@@ -353,7 +339,6 @@ class Configurability::Config
 
 
 		### Create a new ConfigStruct using the values from the given +hash+ if specified.
-		### @param [Hash] hash  a hash of config values
 		def initialize( hash=nil )
 			hash ||= {}
 			@hash = hash.dup
@@ -373,11 +358,8 @@ class Configurability::Config
 		alias_method :each_section, :each
 
 
-		### Return the value associated with the specified +key+.
-		### @param [Symbol, String] key  the key of the value to return
-		### @return [Object] the value associated with +key+, or another
-		###                  Configurability::Config::ConfigStruct if +key+
-		###                  is a section name.
+		# Return the value associated with the specified +key+, or another
+		# Configurability::Config::ConfigStruct if +key+ is a section name.
 		def []( key )
 			key = key.untaint.to_sym if key.respond_to?( :to_sym )
 
@@ -393,8 +375,6 @@ class Configurability::Config
 
 
 		### Set the value associated with the specified +key+ to +value+.
-		### @param [Symbol, String] key    the key of the value to set
-		### @param [Object]         value  the value to set
 		def []=( key, value )
 			key = key.untaint.to_sym
 			self.mark_dirty if @hash[ key ] != value
@@ -535,24 +515,18 @@ class Configurability::Config
 
 
 		### Create a reader method for the specified +key+ and return it.
-		### @param [Symbol] key  the config key to create the reader method body for
-		### @return [Proc] the body of the new method
 		def create_member_reader( key )
 			return lambda { self[key] }
 		end
 
 
 		### Create a predicate method for the specified +key+ and return it.
-		### @param [Symbol] key  the config key to create the predicate method body for
- 		### @return [Proc] the body of the new method
 		def create_member_predicate( key )
 			return lambda { self.member?( key ) && self[key] ? true : false }
 		end
 
 
 		### Create a writer method for the specified +key+ and return it.
-		### @param [Symbol] key  the config key to create the writer method body for
-		### @return [Proc] the body of the new method
 		def create_member_writer( key )
 			return lambda {|val| self[key] = val }
 		end

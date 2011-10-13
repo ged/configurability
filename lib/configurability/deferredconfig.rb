@@ -3,8 +3,8 @@
 require 'configurability'
 
 
-### Mixin that can be applied to classes to cause them to configure themselves
-### as soon as they are able to.
+# Mixin that can be applied to classes to cause them to configure themselves
+# as soon as they are able to.
 module Configurability::DeferredConfig
 
 	### Extension hook: log when the mixin is used.
