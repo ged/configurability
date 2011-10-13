@@ -4,7 +4,9 @@ require 'yaml'
 
 # A configuration mixin for Ruby classes.
 # 
-# @author Michael Granger <ged@FaerieMUD.org>
+# == Author/s
+# 
+# * Michael Granger <ged@FaerieMUD.org>
 # 
 module Configurability
 
@@ -36,22 +38,20 @@ module Configurability
 
 	class << self
 
-		# @return [Array] the Array of objects that have had Configurability 
-		# added to them
+		# the Array of objects that have had Configurability added to them
 		attr_accessor :configurable_objects
 
-		# @return [Object] the loaded configuration (after ::configure_objects
-		# has been called at least once)
+		# the loaded configuration (after ::configure_objects has been called at least once)
 		attr_accessor :loaded_config
 
-		# @return [Logger::Formatter] the log formatter that will be used when the logging 
-		#    subsystem is reset
+		# the log formatter that will be used when the logging subsystem is
+		# reset
 		attr_accessor :default_log_formatter
 
-		# @return [Logger] the logger that will be used when the logging subsystem is reset
+		# the logger that will be used when the logging subsystem is reset
 		attr_accessor :default_logger
 
-		# @return [Logger] the logger that's currently in effect
+		# the logger that's currently in effect
 		attr_accessor :logger
 		alias_method :log, :logger
 		alias_method :log=, :logger=
@@ -119,7 +119,6 @@ module Configurability
 
 
 	### Reset the global logger object to the default
-	### @return [void]
 	def self::reset_logger
 		self.logger = self.default_logger
 		self.logger.level = Logger::WARN
@@ -155,9 +154,7 @@ module Configurability
 	### used to configure the object.
 	attr_writer :config_key
 
-	### Get (and optionally set) the +config_key+.
-	### @param [Symbol] sym  the config key
-	### @return [Symbol] the config key
+	### Get (and optionally set) the +config_key+ (a Symbol).
 	def config_key( sym=nil )
 		@config_key = sym unless sym.nil?
 		@config_key ||= Configurability.make_key_from_object( self )
@@ -166,14 +163,12 @@ module Configurability
 
 
 	### Set the config key of the object.
-	### @param [Symbol] sym  the config key
 	def config_key=( sym )
 		@config_key = sym
 	end
 
 
 	### Default configuration method.
-	### @param [Object] configuration section object
 	def configure( config )
 		@config = config
 	end
