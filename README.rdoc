@@ -1,9 +1,9 @@
-# Configurability
+= Configurability
 
 * http://bitbucket.org/ged/configurability
 
 
-## Description
+== Description
 
 Configurability is a mixin that allows you to add configurability to one or
 more objects or classes. You can assign them each a subsection of the
@@ -11,12 +11,12 @@ configuration, and then later, when the configuration is loaded, the
 configuration is split up and sent to the objects that will use it.
 
 
-## Installation
+== Installation
 
     gem install configurability
 
 
-## Usage
+== Usage
 
 To add configurability to a class, just require the library and extend
 the class:
@@ -64,13 +64,13 @@ to the appropriate section of the config object for each object that has
 been extended with Configurability.
 
 
-## Customization
+== Customization
 
 The default behavior above is just provided as a reasonable default; it is
 expected that you'll want to customize at least one or two things about
 how configuration is handled in your objects.
 
-### Setting a Custom Config Key
+=== Setting a Custom Config Key
 
 The first thing you might want to do is change the config section that
 corresponds to your object. You can do that by declaring a different
@@ -91,7 +91,7 @@ as a Symbol:
         end
     end
 
-### Changing How an Object Is Configured
+=== Changing How an Object Is Configured
 
 You can also change what happens when an object is configured by implementing
 a `#configure` method that takes the config section as an argument:
@@ -107,15 +107,17 @@ a `#configure` method that takes the config section as an argument:
         end
     end
 
-If you still want the `@config` variable to be set, just `super` from your implementation; don't if you don't want it to be set.
+If you still want the `@config` variable to be set, just `super` from your
+implementation; don't if you don't want it to be set.
 
 
-## Configuration Objects
+== Configuration Objects
 
 Configurability also includes `Configurability::Config`, a fairly simple
 configuration object class that can be used to load a YAML configuration file,
 and then present both a Hash-like and a Struct-like interface for reading
-configuration sections and values; it's meant to be used in tandem with Configurability, but it's also useful on its own.
+configuration sections and values; it's meant to be used in tandem with
+Configurability, but it's also useful on its own.
 
 Here's a quick example to demonstrate some of its features. Suppose you have a
 config file that looks like this:
@@ -199,11 +201,13 @@ loaded it:
     config.changed?
     # => true
 
-If it has changed (or even if it hasn't), you can reload it, which automatically re-installs it via the Configurability interface:
+If it has changed (or even if it hasn't), you can reload it, which
+automatically re-installs it via the Configurability interface:
 
     config.reload
 
-You can make modifications via the same Struct- or Hash-like interfaces and write the modified config back out to the same file:
+You can make modifications via the same Struct- or Hash-like interfaces and
+write the modified config back out to the same file:
 
     config.database.testing.adapter = 'mysql'
     config[:database]['testing'].database = 't_fixedassets'
@@ -225,11 +229,13 @@ or write it back to the file it was loaded from:
 	config.write
 
 
-## Development
+== Development
 
-You can submit bug reports, suggestions, clone it with Mercurial, and read
-more about future plans at [the project page][projectpage]. If you prefer Git,
-there is also a [Github mirror][gitmirror].
+You can submit bug reports, suggestions, clone it with Mercurial, and
+read more about future plans at 
+{the project page}[http://bitbucket.org/ged/configurability]. If you 
+prefer Git, there is also a 
+{Github mirror}[https://github.com/ged/configurability].
 
 After checking out the source, run:
 
@@ -239,7 +245,7 @@ This task will install any missing dependencies, run the tests/specs,
 and generate the API documentation.
 
 
-## License
+== License
 
 Copyright (c) 2010, 2011  Michael Granger
 All rights reserved.
@@ -269,7 +275,4 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-[projectpage]:http://bitbucket.org/ged/configurability
-[gitmirror]:https://github.com/ged/configurability
 

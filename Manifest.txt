@@ -1,6 +1,8 @@
-History.md
+ChangeLog
+History.rdoc
 LICENSE
-README.md
+Manifest.txt
+README.rdoc
 Rakefile
 examples/basicconfig.rb
 examples/config.yml
