@@ -53,7 +53,7 @@ describe Configurability::Config do
 	end
 
 	it "can dump itself as YAML" do
-		Configurability::Config.new.dump.should == "--- {}\n\n"
+		Configurability::Config.new.dump.should =~ /^--- \{\}\n\n?/
 	end
 
 	it "returns nil as its change description" do
