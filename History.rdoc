@@ -1,3 +1,8 @@
+== v1.0.8 [2011-11-01] Michael Granger <ged@FaerieMUD.org>
+
+- Fix for Ruby 1.9.3-p0.
+
+
 == v1.0.7 [2011-10-13] Michael Granger <ged@FaerieMUD.org>
 
 - De-Yard and fix some other documentation/packaging issues.
