@@ -74,7 +74,7 @@ describe Configurability do
 	end
 
 	it "fetches config sections via the index operator if the config doesn't respond " +
-	   "directly to the section name, but does to the index operator" do
+	   "directly to the section name, but does to the index operator and #key?" do
 		klass = Class.new do
 			extend Configurability
 			config_key :testconfig
@@ -82,7 +82,9 @@ describe Configurability do
 
 		config = mock( "configuration object" )
 		config.should_receive( :respond_to? ).with( :testconfig ).and_return( false )
+		config.should_receive( :respond_to? ).with( :key? ).and_return( true )
 		config.should_receive( :respond_to? ).with( :[] ).and_return( true )
+		config.should_receive( :key? ).with( :testconfig ).and_return( true )
 		config.should_receive( :[] ).with( :testconfig ).and_return( :a_config_section )
 
 		klass.should_receive( :configure ).with( :a_config_section )
@@ -113,7 +115,10 @@ describe Configurability do
 
 		config = mock( "configuration object" )
 		config.should_receive( :respond_to? ).with( :testconfig ).and_return( false )
+		config.should_receive( :respond_to? ).with( :key? ).and_return( true )
 		config.should_receive( :respond_to? ).with( :[] ).and_return( true )
+		config.should_receive( :key? ).with( :testconfig ).and_return( false )
+		config.should_receive( :key? ).with( 'testconfig' ).and_return( true )
 		config.should_receive( :[] ).with( :testconfig ).and_return( nil )
 		config.should_receive( :[] ).with( 'testconfig' ).and_return( :a_config_section )
 
@@ -251,6 +256,33 @@ describe Configurability do
 			end
 
 			objectclass.config.should == :yes
+		end
+
+		it "doesn't reconfigure objects that have already been configured unless the config changes" do
+			first_objectclass = Class.new do
+				extend Configurability
+				@configs = []
+				config_key :postconfig
+				def self::configure( config ); @configs << config; end
+				def self::inherited( subclass ); subclass.instance_variable_set(:@configs, []); super; end
+				class << self; attr_reader :configs; end
+			end
+
+			second_objectclass = Class.new( first_objectclass ) do
+				extend Configurability
+				config_key :postconfig
+				def self::configure( config ); @configs << config; end
+			end
+
+			third_objectclass = Class.new( second_objectclass ) do
+				extend Configurability
+				config_key :postconfig
+				def self::configure( config ); @configs << config; end
+			end
+
+			first_objectclass.configs.should == [ @config[:postconfig] ]
+			second_objectclass.configs.should == [ nil, @config[:postconfig] ]
+			third_objectclass.configs.should == [ nil, @config[:postconfig] ]
 		end
 
 	end
