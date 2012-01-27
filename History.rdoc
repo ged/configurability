@@ -1,3 +1,21 @@
+== v1.0.8 [2011-10-13] Michael Granger <ged@FaerieMUD.org>
+
+Fix problems associated with inheritance.
+
+- Added a Hash of configure methods that have already been called
+  as pairs of Methods and Config sections. (Configurability.configured)
+- Use the `configured` hash to avoid re-calling configure with the same
+  config section more than once when a class with Configurability is
+  inherited.
+- Configurability.install_config -- Only use the index operator method
+  of the config object if it actually has the config_key as a key. Else
+  configure with +nil+.
+- Support different whitespace conventions in different YAML libraries
+
+Thanks to Mahlon E. Smith for reporting this bug, and for pairing with
+me to fix it.
+
+
 == v1.0.7 [2011-10-13] Michael Granger <ged@FaerieMUD.org>
 
 - De-Yard and fix some other documentation/packaging issues.
