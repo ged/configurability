@@ -1,0 +1,9 @@
+# Settings
+projectDirectory     = "$CWD"
+windowTitle          = "${CWD/^.*\///} «$TM_DISPLAYNAME»"
+excludeInFileChooser = "{$exclude,.hg}"
+
+[ source.ruby ]
+softTabs         = false
+tabSize          = 4
+
