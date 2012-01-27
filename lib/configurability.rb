@@ -26,6 +26,11 @@ module Configurability
 	### The loaded config (if there is one)
 	@loaded_config = nil
 
+	### The hash of configuration calls that have already taken place -- the keys are
+	### Method objects for the configure methods of the configured objects, and the values
+	### are the config section it was called with
+	@configured = Hash.new( false )
+
 	### Logging
 	@default_logger = Logger.new( $stderr )
 	@default_logger.level = $DEBUG ? Logger::DEBUG : Logger::WARN
@@ -43,6 +48,9 @@ module Configurability
 
 		# the loaded configuration (after ::configure_objects has been called at least once)
 		attr_accessor :loaded_config
+
+		# the hash of configure methods => config sections which have already been installed
+		attr_reader :configured
 
 		# the log formatter that will be used when the logging subsystem is
 		# reset
@@ -104,6 +112,7 @@ module Configurability
 		self.log.debug "Splitting up config %p between %d objects with configurability." %
 			[ config, self.configurable_objects.length ]
 
+		self.reset
 		self.loaded_config = config
 
 		self.configurable_objects.each do |obj|
@@ -115,6 +124,7 @@ module Configurability
 	### If a configuration has been loaded (via {#configure_objects}), clear it.
 	def self::reset
 		self.loaded_config = nil
+		self.configured.clear
 	end
 
 
@@ -134,25 +144,39 @@ module Configurability
 
 		if config.respond_to?( section )
 			self.log.debug "  config has a %p method; using that" % [ section ]
-			object.configure( config.send(section) )
-		elsif config.respond_to?( :[] )
-			self.log.debug "  config has a an index operator method; using that"
-			object.configure( config[section] || config[section.to_s] )
+			section = config.send( section )
+		elsif config.respond_to?( :[] ) && config.respond_to?( :key? )
+			self.log.debug "  config has a hash-ish interface..."
+			if config.key?( section ) || config.key?( section.to_s )
+				self.log.debug "    and has a %p member; using that" % [ section ]
+				section = config[section] || config[section.to_s]
+			else
+				self.log.debug "    but no %p member."
+				section = nil
+			end
 		else
 			self.log.warn "  don't know how to get the %p section of the config from %p" %
 				[ section, config ]
-			object.configure( nil )
+			section = nil
 		end
+
+		# Figure out if the configure method has already been called with this config
+		# section before, and don't re-call it if so
+		configure_method = object.method( :configure )
+
+		if self.configured[ configure_method ] == section
+			self.log.debug "  avoiding re-calling %p" % [ configure_method ]
+			return
+		end
+
+		self.log.debug "  calling %p" % [ configure_method ]
+		configure_method.call( section )
 	end
 
 
 	#############################################################
 	### A P P E N D E D	  M E T H O D S
 	#############################################################
-
-	### The symbol which corresponds to the section of the configuration
-	### used to configure the object.
-	attr_writer :config_key
 
 	### Get (and optionally set) the +config_key+ (a Symbol).
 	def config_key( sym=nil )

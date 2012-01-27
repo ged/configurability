@@ -19,6 +19,7 @@ require 'yaml'
 
 SimpleCov.start do
 	add_filter '/spec/'
+	add_filter '/textmate-command/'
 end
 require 'configurability'
 
@@ -127,7 +128,6 @@ module Configurability::SpecHelpers
 			Thread.current['logger-output'] = []
 			logdevice = ArrayLogger.new( Thread.current['logger-output'] )
 			Configurability.logger = Logger.new( logdevice )
-			Configurability.logger.level = level
 			Configurability.logger.formatter = HtmlLogFormatter.new( Configurability.logger )
 		else
 			logger = Logger.new( $stderr )

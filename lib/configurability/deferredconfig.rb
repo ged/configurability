@@ -20,6 +20,7 @@ module Configurability::DeferredConfig
 		super
 
 		if sym == :configure
+			Configurability.log.debug "Re-configuring %p via deferred config hook." % [ self ]
 			config = Configurability.loaded_config
 			Configurability.log.debug "Propagating config to %p" % [ self ]
 			Configurability.install_config( config, self )
