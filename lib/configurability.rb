@@ -155,7 +155,7 @@ module Configurability
 				section = nil
 			end
 		else
-			self.log.warn "  don't know how to get the %p section of the config from %p" %
+			self.log.info "  don't know how to get the %p section of the config from %p" %
 				[ section, config ]
 			section = nil
 		end
