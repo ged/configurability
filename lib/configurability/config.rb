@@ -254,6 +254,12 @@ class Configurability::Config
 	end
 
 
+	### Delegate logging to the module's Logger.
+	def log
+		Configurability.logger
+	end
+
+
 	#######
 	private
 	#######

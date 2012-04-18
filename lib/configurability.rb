@@ -16,7 +16,10 @@ module Configurability
 	# Version-control revision constant
 	REVISION = %q$Revision$
 
-	require 'configurability/logformatter'
+
+	require 'configurability/logging'
+	extend Configurability::Logging
+
 	require 'configurability/deferredconfig'
 
 
@@ -31,16 +34,6 @@ module Configurability
 	### are the config section it was called with
 	@configured = Hash.new( false )
 
-	### Logging
-	@default_logger = Logger.new( $stderr )
-	@default_logger.level = $DEBUG ? Logger::DEBUG : Logger::WARN
-
-	@default_log_formatter = Configurability::LogFormatter.new( @default_logger )
-	@default_logger.formatter = @default_log_formatter
-
-	@logger = @default_logger
-
-
 	class << self
 
 		# the Array of objects that have had Configurability added to them
@@ -52,17 +45,15 @@ module Configurability
 		# the hash of configure methods => config sections which have already been installed
 		attr_reader :configured
 
-		# the log formatter that will be used when the logging subsystem is
-		# reset
-		attr_accessor :default_log_formatter
+	end
 
-		# the logger that will be used when the logging subsystem is reset
-		attr_accessor :default_logger
 
-		# the logger that's currently in effect
-		attr_accessor :logger
-		alias_method :log, :logger
-		alias_method :log=, :logger=
+	### Get the library version. If +include_buildnum+ is true, the version string will
+	### include the VCS rev ID.
+	def self::version_string( include_buildnum=false )
+		vstring = "%s %s" % [ self.name, VERSION ]
+		vstring << " (build %s)" % [ REVISION[/: ([[:xdigit:]]+)/, 1] || '0' ] if include_buildnum
+		return vstring
 	end
 
 
@@ -125,14 +116,6 @@ module Configurability
 	def self::reset
 		self.loaded_config = nil
 		self.configured.clear
-	end
-
-
-	### Reset the global logger object to the default
-	def self::reset_logger
-		self.logger = self.default_logger
-		self.logger.level = Logger::WARN
-		self.logger.formatter = self.default_log_formatter
 	end
 
 
