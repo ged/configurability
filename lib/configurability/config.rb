@@ -140,9 +140,17 @@ class Configurability::Config
 	### Write the configuration object using the specified name and any
 	### additional +args+.
 	def write( path=@path, *args )
+		unless path.is_a?( String ) || path.is_a?( Pathname )
+			args.unshift( path )
+			path = @path
+		end
+
 		raise ArgumentError,
 			"No name associated with this config." unless path
-		path.open( File::WRONLY|File::CREAT|File::TRUNC ) do |ofh|
+
+		self.log.info "Writing config to %s with args: %p" % [ path, args ]
+		path = Pathname( path )
+		path.open( File::WRONLY|File::CREAT|File::TRUNC, *args ) do |ofh|
 			ofh.print( self.dump )
 		end
 	end

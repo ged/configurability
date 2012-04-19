@@ -142,6 +142,10 @@ end
 RSpec.configure do |config|
 	config.mock_with( :rspec )
 	config.include( Configurability::SpecHelpers )
+	config.treat_symbols_as_metadata_keys_with_true_values = true
+
+	config.filter_run_excluding :only_ruby_19 if RUBY_VERSION < '1.9.2'
+
 end
 
 # vim: set nosta noet ts=4 sw=4:
