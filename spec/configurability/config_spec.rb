@@ -10,7 +10,6 @@ BEGIN {
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 }
 
-require 'tempfile'
 require 'logger'
 require 'fileutils'
 require 'rspec'
@@ -135,7 +134,7 @@ describe Configurability::Config do
 
 	context "created with in-memory YAML source" do
 
-		before(:each) do
+		before( :each ) do
 			@config = Configurability::Config.new( TEST_CONFIG )
 		end
 
@@ -206,7 +205,7 @@ describe Configurability::Config do
 
 	# saving if changed since loaded
 	context " whose internal values have been changed since loaded" do
-		before(:each) do
+		before( :each ) do
 			@config = Configurability::Config.new( TEST_CONFIG )
 			@config.section.subsection.anothersection = 11451
 		end
@@ -226,42 +225,50 @@ describe Configurability::Config do
 
 	# loading from a file
 	context " loaded from a file" do
-		before(:all) do
-			@tmpfile = Tempfile.new( 'test.conf', '.' )
-			@tmpfile.print( TEST_CONFIG )
-			@tmpfile.close
+		before( :all ) do
+			filename = Dir::Tmpname.make_tmpname( './test', '.conf' )
+			@tmpfile = Pathname( filename )
+			@tmpfile.open( 'w', 0644 ) {|io| io.print(TEST_CONFIG) }
 		end
 
-		after(:all) do
-			@tmpfile.delete
+		after( :all ) do
+			@tmpfile.unlink
 		end
 
-
-		before(:each) do
-			@config = Configurability::Config.load( @tmpfile.path )
+		before( :each ) do
+			@config = Configurability::Config.load( @tmpfile.to_s )
 		end
 
 
 		### Specifications
 		it "remembers which file it was loaded from" do
-			@config.path.should == Pathname( @tmpfile.path ).expand_path
+			@config.path.should == @tmpfile.expand_path
 		end
 
 		it "writes itself back to the same file by default" do
 			@config.port = 114411
 			@config.write
-			otherconfig = Configurability::Config.load( @tmpfile.path )
+			otherconfig = Configurability::Config.load( @tmpfile.to_s )
 
 			otherconfig.port.should == 114411
 		end
 
+		it "can be written to a different file" do
+			path = Dir::Tmpname.make_tmpname( './another-', '.config' )
+
+			@config.write( path )
+			File.read( path ).should =~ /section:\n  subsection/
+
+			File.unlink( path )
+		end
+
 		it "includes the name of the file in its inspect output" do
-			@config.inspect.should include( File.basename(@tmpfile.path) )
+			@config.inspect.should include( File.basename(@tmpfile.to_s) )
 		end
 
 		it "yields itself if a block is given at load-time" do
 			yielded_self = nil
-			config = Configurability::Config.load( @tmpfile.path ) do
+			config = Configurability::Config.load( @tmpfile.to_s ) do
 				yielded_self = self
 			end
 			yielded_self.should equal( config )
@@ -270,7 +277,7 @@ describe Configurability::Config do
 		it "passes itself as the block argument if a block of arity 1 is given at load-time" do
 			arg_self = nil
 			yielded_self = nil
-			config = Configurability::Config.load( @tmpfile.path ) do |arg|
+			config = Configurability::Config.load( @tmpfile.to_s ) do |arg|
 				yielded_self = self
 				arg_self = arg
 			end
@@ -288,23 +295,23 @@ describe Configurability::Config do
 
 	# reload if file changes
 	context " whose file changes after loading" do
-		before(:all) do
-			@tmpfile = Tempfile.new( 'test.conf', '.' )
-			@tmpfile.print( TEST_CONFIG )
-			@tmpfile.close
+		before( :all ) do
+			filename = Dir::Tmpname.make_tmpname( './test', '.conf' )
+			@tmpfile = Pathname( filename )
+			@tmpfile.open( 'w', 0644 ) {|io| io.print(TEST_CONFIG) }
 		end
 
-		after(:all) do
-			@tmpfile.delete
+		after( :all ) do
+			@tmpfile.unlink
 		end
 
 
-		before(:each) do
+		before( :each ) do
 			old_date = Time.now - 3600
-			File.utime( old_date, old_date, @tmpfile.path )
-			@config = Configurability::Config.load( @tmpfile.path )
+			File.utime( old_date, old_date, @tmpfile.to_s )
+			@config = Configurability::Config.load( @tmpfile.to_s )
 			now = Time.now + 10
-			File.utime( now, now, @tmpfile.path )
+			File.utime( now, now, @tmpfile.to_s )
 		end
 
 
@@ -324,7 +331,7 @@ describe Configurability::Config do
 		end
 
 		it "reapplies its defaults when reloading" do
-			config = Configurability::Config.load( @tmpfile.path, :defaultskey => 8 )
+			config = Configurability::Config.load( @tmpfile.to_s, :defaultskey => 8 )
 			config.reload
 			config.defaultskey.should == 8
 		end
@@ -333,7 +340,7 @@ describe Configurability::Config do
 
 	# merging
 	context " created by merging two other configs" do
-		before(:each) do
+		before( :each ) do
 			@config1 = Configurability::Config.new
 			@config2 = Configurability::Config.new( TEST_CONFIG )
 			@merged = @config1.merge( @config2 )
