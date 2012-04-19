@@ -242,7 +242,7 @@ or write it back to the file it was loaded from:
 Configurability also supports an API for generating a new config file with
 defaults for all objects with Configurability.
 
-[:FIXME: Finish up the documentation]
+[:FIXME:] Finish up the documentation
 
 
 == Development
