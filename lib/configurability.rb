@@ -22,6 +22,8 @@ module Configurability
 
 	require 'configurability/deferredconfig'
 
+	autoload :Config, 'configurability/config'
+
 
 	### The objects that have had Configurability added to them
 	@configurable_objects = []
@@ -157,9 +159,41 @@ module Configurability
 	end
 
 
+	### Gather defaults from objects with Configurability in the given +collection+
+	### object. Objects that wish to add a section to the defaults should implement
+	### a #defaults method in the same scope as #configure that returns the Hash of
+	### default, or set one of the constants in the default implementation of
+	### #defaults. The hash for each object will be merged into the +collection+
+	### via #merge!.
+	def self::gather_defaults( collection={} )
+		self.configurable_objects.each do |obj|
+			next unless obj.respond_to?( :defaults )
+			unless subhash = obj.defaults
+				Configurability.log.warn "No defaults for %p; skipping" % [ obj ]
+				next
+			end
+			section = obj.config_key.to_sym
+
+			collection.merge!( section => subhash )
+		end
+
+		return collection
+	end
+
+
+	### Gather the default configuration in a Configurability::Config object and return it.
+	def self::default_config
+		return self.gather_defaults( Configurability::Config.new )
+	end
+
+
 	#############################################################
 	### A P P E N D E D	  M E T H O D S
 	#############################################################
+
+	#
+	# :section: Configuration API
+	#
 
 	### Get (and optionally set) the +config_key+ (a Symbol).
 	def config_key( sym=nil )
@@ -178,6 +212,32 @@ module Configurability
 	### Default configuration method.
 	def configure( config )
 		@config = config
+	end
+
+
+	#
+	# :section: Configuration Defaults API
+	#
+
+	### The default implementation of the method called by ::gather_defaults when
+	### gathering configuration defaults. This method expects either a
+	### +DEFAULT_CONFIG+ or a +CONFIG_DEFAULTS+ constant to contain the configuration
+	### defaults, and will just return +nil+ if neither exists.
+	def defaults
+
+		return nil unless respond_to?( :const_defined? )
+
+		Configurability.log.debug "Looking for defaults in %p's constants." % [ self ]
+		if self.const_defined?( :DEFAULT_CONFIG )
+			Configurability.log.debug "  found DEFAULT_CONFIG"
+			return self.const_get( :DEFAULT_CONFIG ).dup
+		elsif self.const_defined?( :CONFIG_DEFAULTS )
+			Configurability.log.debug "  found CONFIG_DEFAULTS"
+			return self.const_get( :CONFIG_DEFAULTS ).dup
+		else
+			Configurability.log.debug "  no default constants."
+			return nil
+		end
 	end
 
 
