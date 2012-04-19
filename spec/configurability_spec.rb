@@ -287,6 +287,79 @@ describe Configurability do
 
 	end
 
+
+	describe "defaults hash" do
+
+		it "can generate a Hash of defaults for all objects with Configurability" do
+			Configurability.gather_defaults.should be_a( Hash )
+		end
+
+		it "fetches defaults from a CONFIG_DEFAULTS constant if the object defines one" do
+			klass = Class.new do
+				extend Configurability
+				config_key :testconfig
+				self::CONFIG_DEFAULTS = { :one => 1, :types => {:one => true} }
+				Configurability.log.debug "Defaults: %p" % [ self.defaults ]
+			end
+
+			Configurability.gather_defaults.should include( :testconfig )
+			Configurability.gather_defaults[:testconfig].should == klass.const_get( :CONFIG_DEFAULTS )
+			Configurability.gather_defaults[:testconfig].should_not be( klass.const_get(:CONFIG_DEFAULTS) )
+		end
+
+		it "fetches defaults from a DEFAULT_CONFIG constant if the object defines one" do
+			klass = Class.new do
+				extend Configurability
+				config_key :testconfig
+				self::DEFAULT_CONFIG = { :two => 2, :types => {:two => true} }
+			end
+
+			Configurability.gather_defaults.should include( :testconfig )
+			Configurability.gather_defaults[:testconfig].should == klass.const_get( :DEFAULT_CONFIG )
+			Configurability.gather_defaults[:testconfig].should_not be( klass.const_get(:DEFAULT_CONFIG) )
+		end
+
+		it "fetches defaults from a #defaults method if the object implements one" do
+			klass = Class.new do
+				extend Configurability
+				config_key :otherconfig
+				def self::defaults; { :other => true }; end
+			end
+
+			Configurability.gather_defaults.should include( :otherconfig )
+			Configurability.gather_defaults[:otherconfig].should == klass.defaults
+			Configurability.gather_defaults[:otherconfig].should_not be( klass.defaults )
+		end
+
+		it "can return a Configurability::Config object with defaults, too" do
+			klass1 = Class.new do
+				extend Configurability
+				config_key :testconfig
+				self::CONFIG_DEFAULTS = { :one => 1, :types => {:one => true} }
+			end
+			klass2 = Class.new do
+				extend Configurability
+				config_key :testconfig
+				self::DEFAULT_CONFIG = { :two => 2, :types => {:two => true} }
+			end
+			klass3 = Class.new do
+				extend Configurability
+				config_key :otherconfig
+				def self::defaults; { :other => true }; end
+			end
+
+			config = Configurability.default_config
+
+			config.should be_a( Configurability::Config )
+			config.testconfig.one.should == 1
+			config.testconfig.two.should == 2
+			config.testconfig.types.one.should be_true()
+			config.testconfig.types.two.should be_true()
+			config.otherconfig.other.should be_true()
+		end
+
+	end
+
 end
 
 # vim: set nosta noet ts=4 sw=4:
