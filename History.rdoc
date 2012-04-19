@@ -1,3 +1,11 @@
+== v1.1.0 [2012-04-18] Michael Granger <ged@FaerieMUD.org>
+
+Add a 'defaults' API that allows defaults to be gathered from any
+object with configurability and merged into a hash keyed by the
+object's config_key. This hash can be used to generate an initial
+unified config file for all configurable parts of a given system.
+
+
 == v1.0.10 [2012-03-13] Michael Granger <ged@FaerieMUD.org>
 
 - Fix log level message.
