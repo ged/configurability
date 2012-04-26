@@ -140,8 +140,7 @@ module Configurability
 				section = nil
 			end
 		else
-			self.log.info "  don't know how to get the %p section of the config from %p" %
-				[ section, config ]
+			self.log.info "  no %p section in %p; configuring with nil" % [ section, config ]
 			section = nil
 		end
 
