@@ -1,0 +1,338 @@
+#!/usr/bin/env ruby
+# vim: set nosta noet ts=4 sw=4:
+
+require 'configurability'
+require 'configurability/config'
+require 'trollop'
+require 'highline'
+
+# Have to do it this way to avoid the vendored 'sysexits' under OSX.
+gem 'sysexits'
+require 'sysexits'
+
+
+# A tool for setting up and running Configurability apps
+class Configurability::Command
+	extend ::Sysexits
+	include Sysexits
+
+	# Make a HighLine color scheme
+	COLOR_SCHEME = HighLine::ColorScheme.new do |scheme|
+		scheme[:header]    = [ :bold, :yellow ]
+		scheme[:subheader] = [ :bold, :white ]
+		scheme[:key]       = [ :white ]
+		scheme[:value]     = [ :bold, :white ]
+		scheme[:error]     = [ :red ]
+		scheme[:warning]   = [ :yellow ]
+		scheme[:message]   = [ :reset ]
+	end
+
+
+	# Class instance variables
+	@command_help = Hash.new {|h,k| h[k] = { :desc => nil, :usage => ''} }
+	@prompt = @option_parser = nil
+
+
+	### Run the utility with the given +args+.
+	def self::run( args )
+		HighLine.color_scheme = COLOR_SCHEME
+
+		oparser = self.make_option_parser
+		opts = Trollop.with_standard_exception_handling( oparser ) do
+			oparser.parse( args )
+		end
+
+		command = oparser.leftovers.shift
+		self.new( opts ).run( command, *oparser.leftovers )
+		exit :ok
+
+	rescue => err
+		Configurability.logger.fatal "Oops: %s: %s" % [ err.class.name, err.message ]
+		Configurability.logger.debug { '  ' + err.backtrace.join("\n  ") }
+
+		exit :software_error
+	end
+
+
+	### Return a String that describes the available commands, e.g., for the 'help'
+	### command.
+	def self::make_command_table
+		commands = self.available_commands
+
+		# Build the command table
+		col1len = commands.map( &:length ).max
+		return commands.collect do |cmd|
+			helptext = self.help( cmd.to_sym ) or next # no help == invisible command
+			"%s  %s" % [
+				self.prompt.color(cmd.rjust(col1len), :key),
+				self.prompt.color(helptext, :value)
+			]
+		end.compact
+	end
+
+
+	### Return an Array of the available commands.
+	def self::available_commands
+		return self.public_instance_methods( false ).
+			map( &:to_s ).
+			grep( /_command$/ ).
+			map {|methodname| methodname.sub(/_command$/, '') }.
+			sort
+	end
+
+
+	### Create and configure a command-line option parser for the command.
+	### Returns a Trollop::Parser.
+	def self::make_option_parser
+		unless @option_parser
+			progname = File.basename( $0 )
+
+			# Make a list of the log level names and the available commands
+			loglevels = Configurability::Logging::LOG_LEVELS.
+				sort_by {|name,lvl| lvl }.
+				collect {|name,lvl| name.to_s }.
+				join( ', ' )
+			command_table = self.make_command_table
+
+			@option_parser = Trollop::Parser.new do
+				banner "Configurability Reports"
+
+				text ''
+				command_table.each {|line| text(line) }
+				text ''
+
+				text 'Global Options'
+				opt :require, "Require one or more additional libraries.",
+					:multi => true, :type => :string
+				opt :include, "Add additional directories to the load path.",
+					:multi => true, :type => :string, :short => :I
+				text ''
+
+				text 'Other Options:'
+				opt :debug, "Turn debugging on. Also sets the --loglevel to 'debug'."
+				opt :loglevel, "Set the logging level. Must be one of: #{loglevels}",
+					:default => Configurability::Logging::LOG_LEVEL_NAMES[ Configurability.logger.level ]
+			end
+		end
+
+		return @option_parser
+	end
+
+
+	### Add a help string for the given +command+.
+	def self::help( command, helpstring=nil )
+		if helpstring
+			@command_help[ command.to_sym ][:desc] = helpstring
+		end
+
+		return @command_help[ command.to_sym ][:desc]
+	end
+
+
+	### Add/fetch the +usagestring+ for +command+.
+	def self::usage( command, usagestring=nil )
+		if usagestring
+			prefix = usagestring[ /\A(\s+)/, 1 ]
+			usagestring.gsub!( /^#{prefix}/m, '' ) if prefix
+
+			@command_help[ command.to_sym ][:usage] = usagestring
+		end
+
+		return @command_help[ command.to_sym ][:usage]
+	end
+
+
+	### Return the global Highline prompt object, creating it if necessary.
+	def self::prompt
+		unless @prompt
+			@prompt = HighLine.new
+
+			columns = @prompt.output_cols.nonzero? || 80
+			rows    = @prompt.output_rows.nonzero? || 1000
+
+			@prompt.page_at = rows - 5
+			@prompt.wrap_at = columns - 2
+		end
+
+		return @prompt
+	end
+
+
+	#################################################################
+	###	I N S T A N C E   M E T H O D S
+	#################################################################
+
+	### Create a new instance of the command and set it up with the given
+	### +options+.
+	def initialize( options )
+		Configurability.logger.formatter =
+			Configurability::Logging::ColorFormatter.new( Configurability.logger ) if $stderr.tty?
+		@options = options
+
+		if @options.debug
+			$DEBUG = true
+			$VERBOSE = true
+			Configurability.logger.level = Logger::DEBUG
+		elsif @options.loglevel
+			Configurability.logger.level = Configurability::Logging::LOG_LEVELS[ @options.loglevel ]
+		end
+
+		self.log.debug "Options are: %p" % [ options ]
+	end
+
+
+	######
+	public
+	######
+
+	# The Trollop options hash the command will read its configuration from
+	attr_reader :options
+
+
+	# Delegate the instance #prompt method to the class method instead
+	define_method( :prompt, &self.method(:prompt) )
+
+
+	### Delegate logging to Configurability's Logger.
+	def log
+		Configurability.logger
+	end
+
+
+	### Run the command with the specified +command+ and +args+.
+	def run( command, *args )
+		command ||= 'info'
+		cmd_method = nil
+		loglevel = Configurability.logger.level
+
+		# Unshift directories to the load path specified with -I
+		self.options[:include].each do |path|
+			dirs = path.split( File::PATH_SEPARATOR )
+			self.log.debug "Prepending %p to the load path..." % [ dirs ]
+			$LOAD_PATH.unshift( *dirs )
+		end
+
+		# Require libraries specified with -r
+		self.options[:require].each do |lib|
+			$stderr.puts "Requiring %p..." % [ lib ]
+			require( lib )
+		end
+
+		Configurability.logger.level = loglevel
+		begin
+			cmd_method = self.method( "#{command}_command" )
+		rescue NameError => err
+			error "No such command %p" % [ command ]
+			exit :usage
+		end
+
+		cmd_method.call( *args )
+	end
+
+
+	#
+	# Commands
+	#
+
+	### The 'help' command
+	def help_command( *args )
+
+		# Subcommand help
+		if !args.empty?
+			command = args.shift
+
+			if self.class.available_commands.include?( command )
+				header( self.class.help(command) )
+				desc = "\n" + 'Usage: ' + command + ' ' + self.class.usage(command) + "\n"
+				message( desc )
+			else
+				error "No such command %p" % [ command ]
+			end
+
+		# Help by itself show the table of available commands
+		else
+			command_table = self.class.make_command_table
+			header "Available Commands"
+			message( *command_table )
+		end
+
+	end
+	help :help, "Show help for a single COMMAND if given, or list available commands if not"
+	usage :help, "[COMMAND]"
+
+
+	### The 'info' command
+	def info_command( *args )
+		header "Configurability Report"
+
+		cobjects = Configurability.configurable_objects
+
+		if cobjects.empty?
+			message "No objects extended with Configurability were loaded.",
+			        "You can use the -I and -r flags to include library paths",
+			        "and require libraries."
+		else
+			colwidth = cobjects.map {|obj| obj.config_key.length }.max
+			colwidth = 10 if colwidth < 10
+
+			subheader "%*s   %s" % [ colwidth, "Config Key", "Configurable Object" ]
+			cobjects.each do |obj|
+				message "%*s : %p" % [ colwidth, obj.config_key, obj ]
+			end
+		end
+	end
+	help :info, "Show objects with Configurability in loaded code. Use -r " +
+		"to require additional libraries."
+
+
+	### The 'version' command
+	def version_command( *args )
+		message( "<%= color 'Version:', :header %> " + Configurability.version_string(true) )
+	end
+	help :version, "Prints the Ruby-Mongrel2 version."
+
+
+	#
+	# Helper methods
+	#
+
+
+
+	#
+	# Utility methods
+	#
+
+	### Output normal output
+	def message( *parts )
+		self.prompt.say( parts.map(&:to_s).join($/) )
+	end
+
+
+	### Output the given +text+ highlighted as a header.
+	def header( text )
+		message( self.prompt.color(text, :header) )
+	end
+
+
+	### Output the given +text+ highlighted as a subheader.
+	def subheader( text )
+		message( self.prompt.color(text, :subheader) )
+	end
+
+
+	### Output the given +text+ highlighted as an error.
+	def error( text )
+		message( self.prompt.color(text, :error) )
+	end
+
+
+	### Output the given +items+ as a columnar list.
+	def list( *items )
+		message( self.prompt.list(items.flatten.compact.map(&:to_s), :columns_down) )
+	end
+
+end # class Configurability::Command
+
+
+Configurability::Command.run( ARGV.dup )
+
