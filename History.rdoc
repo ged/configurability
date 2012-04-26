@@ -1,4 +1,4 @@
-== v1.1.0 [2012-04-18] Michael Granger <ged@FaerieMUD.org>
+== v1.1.0 [2012-04-25] Michael Granger <ged@FaerieMUD.org>
 
 Add a 'defaults' API that allows defaults to be gathered from any
 object with configurability and merged into a hash keyed by the
