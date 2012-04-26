@@ -36,7 +36,7 @@ describe Configurability::DeferredConfig do
 	end
 
 	it "calls Configurability.install_config with itself when a 'configure' method is defined" do
-		config = double( "config object", :testing => :testing_config )
+		config = { :testing => :testing_config }
 		Configurability.configure_objects( config )
 
 		a_class = Class.new do
