@@ -47,6 +47,11 @@ describe Configurability::Config do
 		setup_logging( :fatal )
 	end
 
+	after( :each ) do
+		Configurability.configurable_objects.clear
+		Configurability.reset
+	end
+
 	after( :all ) do
 		reset_logging()
 	end
