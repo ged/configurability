@@ -115,7 +115,7 @@ class Configurability::Command
 				text 'Other Options:'
 				opt :debug, "Turn debugging on. Also sets the --loglevel to 'debug'."
 				opt :loglevel, "Set the logging level. Must be one of: #{loglevels}",
-					:default => Configurability.logger.level
+					:default => Configurability.logger.level.to_s
 			end
 		end
 
