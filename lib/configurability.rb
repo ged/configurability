@@ -1,24 +1,27 @@
 #!/usr/bin/env ruby
 
+require 'loggability'
 require 'yaml'
 
 # A configuration mixin for Ruby classes.
-# 
+#
 # == Author/s
-# 
+#
 # * Michael Granger <ged@FaerieMUD.org>
-# 
+#
 module Configurability
+	extend Loggability
+
+
+	# Loggability API -- set up a Loggability logger for the library
+	log_as :configurability
+
 
 	# Library version constant
 	VERSION = '1.1.0'
 
 	# Version-control revision constant
 	REVISION = %q$Revision$
-
-
-	require 'configurability/logging'
-	extend Configurability::Logging
 
 	require 'configurability/deferredconfig'
 

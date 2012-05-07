@@ -13,8 +13,12 @@ require 'sysexits'
 
 # A tool for setting up and running Configurability apps
 class Configurability::Command
-	extend ::Sysexits
+	extend ::Sysexits,
+	       Loggability
 	include Sysexits
+
+	# Loggability API -- log messages through the Configurability module's logger
+	log_to :configurability
 
 	# Make a HighLine color scheme
 	COLOR_SCHEME = HighLine::ColorScheme.new do |scheme|
@@ -47,8 +51,8 @@ class Configurability::Command
 		exit :ok
 
 	rescue => err
-		Configurability.logger.fatal "Oops: %s: %s" % [ err.class.name, err.message ]
-		Configurability.logger.debug { '  ' + err.backtrace.join("\n  ") }
+		self.log.fatal "Oops: %s: %s" % [ err.class.name, err.message ]
+		self.log.debug { '  ' + err.backtrace.join("\n  ") }
 
 		exit :software_error
 	end
@@ -88,7 +92,7 @@ class Configurability::Command
 			progname = File.basename( $0 )
 
 			# Make a list of the log level names and the available commands
-			loglevels = Configurability::Logging::LOG_LEVELS.
+			loglevels = Loggability::LOG_LEVELS.
 				sort_by {|name,lvl| lvl }.
 				collect {|name,lvl| name.to_s }.
 				join( ', ' )
@@ -111,7 +115,7 @@ class Configurability::Command
 				text 'Other Options:'
 				opt :debug, "Turn debugging on. Also sets the --loglevel to 'debug'."
 				opt :loglevel, "Set the logging level. Must be one of: #{loglevels}",
-					:default => Configurability::Logging::LOG_LEVEL_NAMES[ Configurability.logger.level ]
+					:default => Configurability.logger.level
 			end
 		end
 
@@ -165,16 +169,15 @@ class Configurability::Command
 	### Create a new instance of the command and set it up with the given
 	### +options+.
 	def initialize( options )
-		Configurability.logger.formatter =
-			Configurability::Logging::ColorFormatter.new( Configurability.logger ) if $stderr.tty?
+		Loggability.format_with( :color ) if $stderr.tty?
 		@options = options
 
 		if @options.debug
 			$DEBUG = true
 			$VERBOSE = true
-			Configurability.logger.level = Logger::DEBUG
+			Loggability.level = :debug
 		elsif @options.loglevel
-			Configurability.logger.level = Configurability::Logging::LOG_LEVELS[ @options.loglevel ]
+			Loggability.level = @options.loglevel
 		end
 
 		self.log.debug "Options are: %p" % [ options ]
@@ -191,12 +194,6 @@ class Configurability::Command
 
 	# Delegate the instance #prompt method to the class method instead
 	define_method( :prompt, &self.method(:prompt) )
-
-
-	### Delegate logging to Configurability's Logger.
-	def log
-		Configurability.logger
-	end
 
 
 	### Run the command with the specified +command+ and +args+.
@@ -218,7 +215,7 @@ class Configurability::Command
 			require( lib )
 		end
 
-		Configurability.logger.level = loglevel
+		Loggability.level = loglevel
 		begin
 			cmd_method = self.method( "#{command}_command" )
 		rescue NameError => err

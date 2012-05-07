@@ -9,12 +9,12 @@ require 'logger'
 require 'configurability'
 
 # A configuration object class for systems with Configurability
-# 
+#
 # == Author/s
 #
 # * Michael Granger <ged@FaerieMUD.org>
 # * Mahlon E. Smith <mahlon@martini.nu>
-# 
+#
 # This class also delegates some of its methods to the underlying struct:
 #
 # [Configurability::Config::Struct#to_hash]
@@ -33,9 +33,14 @@ require 'configurability'
 #      #[] (delegated to its internal Struct)
 # [Configurability::Config::Struct#[]=]
 #      #[]= (delegated to its internal Struct)
-# 
+#
 class Configurability::Config
-	extend Forwardable
+	extend Forwardable,
+	       Loggability
+
+
+   	# Loggability API -- set up logging through the Configurability module's logger
+	log_to :configurability
 
 
 	#############################################################
