@@ -22,7 +22,7 @@ hoespec = Hoe.spec 'configurability' do
 
 	self.developer 'Michael Granger', 'ged@FaerieMUD.org'
 
-	self.dependency 'loggability', '~> 0.0'
+	self.dependency 'loggability', '~> 0.1'
 
 	self.dependency 'rspec', '~> 2.4', :developer
 	self.dependency 'simplecov', '~> 0.3', :developer
