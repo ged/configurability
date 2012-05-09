@@ -6,3 +6,4 @@ pkg/
 ^commit\-msg\.txt$
 ^coverage/
 ^doc/
+\.rbx/
