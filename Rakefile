@@ -8,7 +8,6 @@ end
 
 
 Hoe.plugin :mercurial
-Hoe.plugin :yard
 Hoe.plugin :signing
 Hoe.plugin :deveiate
 
@@ -22,7 +21,7 @@ hoespec = Hoe.spec 'configurability' do
 
 	self.developer 'Michael Granger', 'ged@FaerieMUD.org'
 
-	self.dependency 'loggability', '~> 0.1'
+	self.dependency 'loggability', '~> 0.2'
 
 	self.dependency 'rspec', '~> 2.4', :developer
 	self.dependency 'simplecov', '~> 0.3', :developer
