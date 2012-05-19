@@ -286,7 +286,7 @@ class Configurability::Command
 	def version_command( *args )
 		message( "<%= color 'Version:', :header %> " + Configurability.version_string(true) )
 	end
-	help :version, "Prints the Ruby-Mongrel2 version."
+	help :version, "Prints the Configurability version."
 
 
 	#
