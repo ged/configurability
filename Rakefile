@@ -13,6 +13,7 @@ Hoe.plugin :deveiate
 
 Hoe.plugins.delete :rubyforge
 
+Encoding.default_internal = Encoding::UTF_8
 
 hoespec = Hoe.spec 'configurability' do
 	self.readme_file = 'README.rdoc'
@@ -21,7 +22,7 @@ hoespec = Hoe.spec 'configurability' do
 
 	self.developer 'Michael Granger', 'ged@FaerieMUD.org'
 
-	self.dependency 'loggability', '~> 0.2'
+	self.dependency 'loggability', '~> 0.4'
 
 	self.dependency 'rspec', '~> 2.4', :developer
 	self.dependency 'simplecov', '~> 0.3', :developer
@@ -38,4 +39,11 @@ ENV['VERSION'] ||= hoespec.spec.version.to_s
 
 # Ensure the specs pass before checking in
 task 'hg:precheckin' => [ :check_history, :check_manifest, :spec ]
+
+
+desc "Build a coverage report"
+task :coverage do
+	ENV["COVERAGE"] = 'yes'
+	Rake::Task[:spec].invoke
+end
 

@@ -24,7 +24,6 @@ require 'configurability/config'
 ###	C O N T E X T S
 #####################################################################
 describe Configurability::Config do
-	include Configurability::SpecHelpers
 
 	TEST_CONFIG = %{
 	---
