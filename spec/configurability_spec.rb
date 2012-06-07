@@ -23,7 +23,6 @@ require 'configurability/config'
 #####################################################################
 
 describe Configurability do
-	include Configurability::SpecHelpers
 
 	before( :all ) do
 		setup_logging( :fatal )
@@ -261,9 +260,8 @@ describe Configurability do
 		it "doesn't reconfigure objects that have already been configured unless the config changes" do
 			first_objectclass = Class.new do
 				extend Configurability
-				@configs = []
 				config_key :postconfig
-				def self::configure( config ); @configs << config; end
+				def self::configure( config ); @configs ||= []; @configs << config; end
 				def self::inherited( subclass ); subclass.instance_variable_set(:@configs, []); super; end
 				class << self; attr_reader :configs; end
 			end
@@ -271,13 +269,13 @@ describe Configurability do
 			second_objectclass = Class.new( first_objectclass ) do
 				extend Configurability
 				config_key :postconfig
-				def self::configure( config ); @configs << config; end
+				def self::configure( config ); @configs ||= []; @configs << config; end
 			end
 
 			third_objectclass = Class.new( second_objectclass ) do
 				extend Configurability
 				config_key :postconfig
-				def self::configure( config ); @configs << config; end
+				def self::configure( config ); @configs ||= []; @configs << config; end
 			end
 
 			first_objectclass.configs.should == [ @config[:postconfig] ]

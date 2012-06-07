@@ -352,7 +352,7 @@ class Configurability::Config
 		# config values.
 		Kernel.methods(false).each {|meth|
 			next unless method_defined?( meth )
-			next if /^(?:__|dup|object_id|inspect|class|raise|method_missing)/.match( meth )
+			next if /^(?:__|dup|object_id|inspect|class|raise|method_missing)/.match( meth.to_s )
 			undef_method( meth )
 		}
 
