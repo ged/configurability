@@ -51,6 +51,23 @@ describe Configurability::DeferredConfig do
 		a_class.config_object.should == :testing_config
 	end
 
+
+	it "includes defaults when configuring" do
+		config = { :testing => :testing_config }
+		Configurability.configure_objects( config )
+
+		a_class = Class.new do
+			extend Configurability::DeferredConfig
+			class << self; attr_accessor :config_object; end
+			def self::config_key; "testing"; end
+			def self::configure( config )
+				self.config_object = config
+			end
+		end
+
+		a_class.config_object.should == :testing_config
+	end
+
 end
 
 # vim: set nosta noet ts=4 sw=4:
