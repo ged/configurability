@@ -65,6 +65,8 @@ describe Configurability::Config do
 
 	it "autogenerates accessors for non-existant struct members" do
 		config = Configurability::Config.new
+		config.plugins ||= {}
+		config.plugins.filestore ||= {}
 		config.plugins.filestore.maxsize = 1024
 		config.plugins.filestore.maxsize.should == 1024
 	end
