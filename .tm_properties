@@ -7,3 +7,7 @@ excludeInFileChooser = "{$exclude,.hg}"
 softTabs         = false
 tabSize          = 4
 
+[ source.ruby.rspec ]
+softTabs         = false
+tabSize          = 4
+
