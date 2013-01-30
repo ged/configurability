@@ -382,12 +382,8 @@ class Configurability::Config
 		def []( key )
 			key = key.untaint.to_sym if key.respond_to?( :to_sym )
 
-			# Create the config struct on the fly for subsections
-			if !@hash.key?( key )
-				@hash[ key ] = self.class.new
-			elsif @hash[ key ].is_a?( Hash )
-				@hash[ key ] = self.class.new( @hash[key] )
-			end
+			# Convert Hashes to Struct on the fly for subsections
+			@hash[ key ] = self.class.new( @hash[key] ) if @hash[ key ].is_a?( Hash )
 
 			return @hash[ key ]
 		end
