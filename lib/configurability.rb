@@ -242,6 +242,10 @@ module Configurability
 		end
 	end
 
+	### Inject Configurability support into Loggability to avoid circular dependency
+	### load issues.
+	Loggability.extend( self )
+	Loggability.config_key( :logging )
 
 end # module Configurability
 
