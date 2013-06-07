@@ -1,3 +1,8 @@
+== v2.0.1 [2013-06-07] Mahlon E. Smith <mahlon@martini.nu>
+
+- Repair relationship with Loggability.
+
+
 == v2.0.0 [2013-01-30] Michael Granger <ged@FaerieMUD.org>
 
 - Make missing Configurability::Config values return nil instead of
