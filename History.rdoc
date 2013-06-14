@@ -1,3 +1,8 @@
+== v2.0.2 [2013-06-14] Mahlon E. Smith <mahlon@martini.nu>
+
+- Load YAML safely if the safe_yaml gem is present.
+
+
 == v2.0.1 [2013-06-07] Mahlon E. Smith <mahlon@martini.nu>
 
 - Repair relationship with Loggability.
