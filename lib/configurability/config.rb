@@ -245,7 +245,11 @@ class Configurability::Config
 	def make_configstruct_from_source( source, defaults=nil )
 		defaults ||= {}
 		mergefunc = Configurability::Config.method( :merge_complex_hashes )
-		hash = YAML.load( source )
+		hash = if defined?( SafeYAML ) then
+				   YAML.load( source, :safe => true )
+			   else
+				   YAML.load( source )
+			   end
 		ihash = symbolify_keys( untaint_values(hash) )
 		mergedhash = defaults.merge( ihash, &mergefunc )
 
