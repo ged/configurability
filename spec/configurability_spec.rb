@@ -130,6 +130,26 @@ describe Configurability do
 		Configurability.configure_objects( config )
 	end
 
+	it "configures classes that have inherited Configurability and set a different config_key" do
+		klass = Class.new do
+			extend Configurability
+			config_key :testconfig
+		end
+		subclass = Class.new( klass ) do
+			config_key :subconfig
+		end
+
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :testconfig ).and_return( true )
+		expect( config ).to receive( :testconfig ).and_return( :a_config_section )
+		expect( config ).to receive( :respond_to? ).with( :subconfig ).and_return( true )
+		expect( config ).to receive( :subconfig ).and_return( :a_sub_config_section )
+
+		expect( subclass ).to receive( :configure ).with( :a_sub_config_section )
+
+		Configurability.configure_objects( config )
+	end
+
 	it "uses the object's name for its config key if it has one and hasn't specified a key " +
 	   "directly" do
 		object = Object.new
@@ -351,6 +371,25 @@ describe Configurability do
 			expect( config.testconfig.types.one ).to be_true()
 			expect( config.testconfig.types.two ).to be_true()
 			expect( config.otherconfig.other ).to be_true()
+		end
+
+		it "returns defaults for an object that inherits from a class with Configurability" do
+			klass = Class.new do
+				extend Configurability
+				config_key :testconfig
+				self::CONFIG_DEFAULTS = { :one => 1, :types => {:one => true} }
+				Configurability.log.debug "Defaults: %p" % [ self.defaults ]
+			end
+			subclass = Class.new( klass ) do
+				config_key :spanishconfig
+				self::CONFIG_DEFAULTS = { :uno => 1 }
+			end
+
+			config = Configurability.default_config
+
+			expect( config ).to respond_to( :spanishconfig )
+			expect( config.spanishconfig.uno ).to eq( 1 )
+
 		end
 
 	end
