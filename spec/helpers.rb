@@ -28,7 +28,10 @@ require 'configurability'
 
 
 RSpec.configure do |config|
-	config.mock_with( :rspec )
+	config.mock_with( :rspec ) do |config|
+		config.syntax = :expect
+	end
+
 	config.include( Loggability::SpecHelpers )
 	config.treat_symbols_as_metadata_keys_with_true_values = true
 

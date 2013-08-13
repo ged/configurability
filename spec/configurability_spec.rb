@@ -1,18 +1,8 @@
 #!/usr/bin/env ruby
 
-BEGIN {
-	require 'pathname'
-	basedir = Pathname.new( __FILE__ ).dirname.parent
-
-	libdir = basedir + "lib"
-
-	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
-	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
-}
+require 'helpers'
 
 require 'rspec'
-
-require 'spec/lib/helpers'
 
 require 'configurability'
 require 'configurability/config'
@@ -40,7 +30,7 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		klass.config_key.should == :testconfig
+		expect( klass.config_key ).to be( :testconfig )
 	end
 
 	it "fetches config sections via a method with the config key name if the config " +
@@ -50,11 +40,11 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		config = mock( "configuration object" )
-		config.should_receive( :respond_to? ).with( :testconfig ).and_return( true )
-		config.should_receive( :testconfig ).and_return( :a_config_section )
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :testconfig ).and_return( true )
+		expect( config ).to receive( :testconfig ).and_return( :a_config_section )
 
-		klass.should_receive( :configure ).with( :a_config_section )
+		expect( klass ).to receive( :configure ).with( :a_config_section )
 		Configurability.configure_objects( config )
 	end
 
@@ -64,11 +54,11 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		config = mock( "configuration object" )
-		config.should_receive( :respond_to? ).with( :testconfig ).and_return( true )
-		config.should_receive( :testconfig ).and_return( :a_config_section )
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :testconfig ).and_return( true )
+		expect( config ).to receive( :testconfig ).and_return( :a_config_section )
 
-		klass.should_receive( :configure ).with( :a_config_section )
+		expect( klass ).to receive( :configure ).with( :a_config_section )
 		Configurability.configure_objects( config )
 	end
 
@@ -79,14 +69,14 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		config = mock( "configuration object" )
-		config.should_receive( :respond_to? ).with( :testconfig ).and_return( false )
-		config.should_receive( :respond_to? ).with( :key? ).and_return( true )
-		config.should_receive( :respond_to? ).with( :[] ).and_return( true )
-		config.should_receive( :key? ).with( :testconfig ).and_return( true )
-		config.should_receive( :[] ).with( :testconfig ).and_return( :a_config_section )
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :testconfig ).and_return( false )
+		expect( config ).to receive( :respond_to? ).with( :key? ).and_return( true )
+		expect( config ).to receive( :respond_to? ).with( :[] ).and_return( true )
+		expect( config ).to receive( :key? ).with( :testconfig ).and_return( true )
+		expect( config ).to receive( :[] ).with( :testconfig ).and_return( :a_config_section )
 
-		klass.should_receive( :configure ).with( :a_config_section )
+		expect( klass ).to receive( :configure ).with( :a_config_section )
 		Configurability.configure_objects( config )
 	end
 
@@ -97,11 +87,11 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		config = mock( "configuration object" )
-		config.should_receive( :respond_to? ).with( :testconfig ).and_return( false )
-		config.should_receive( :respond_to? ).with( :[] ).and_return( false )
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :testconfig ).and_return( false )
+		expect( config ).to receive( :respond_to? ).with( :[] ).and_return( false )
 
-		klass.should_receive( :configure ).with( nil )
+		expect( klass ).to receive( :configure ).with( nil )
 
 		Configurability.configure_objects( config )
 	end
@@ -112,16 +102,16 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		config = mock( "configuration object" )
-		config.should_receive( :respond_to? ).with( :testconfig ).and_return( false )
-		config.should_receive( :respond_to? ).with( :key? ).and_return( true )
-		config.should_receive( :respond_to? ).with( :[] ).and_return( true )
-		config.should_receive( :key? ).with( :testconfig ).and_return( false )
-		config.should_receive( :key? ).with( 'testconfig' ).and_return( true )
-		config.should_receive( :[] ).with( :testconfig ).and_return( nil )
-		config.should_receive( :[] ).with( 'testconfig' ).and_return( :a_config_section )
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :testconfig ).and_return( false )
+		expect( config ).to receive( :respond_to? ).with( :key? ).and_return( true )
+		expect( config ).to receive( :respond_to? ).with( :[] ).and_return( true )
+		expect( config ).to receive( :key? ).with( :testconfig ).and_return( false )
+		expect( config ).to receive( :key? ).with( 'testconfig' ).and_return( true )
+		expect( config ).to receive( :[] ).with( :testconfig ).and_return( nil )
+		expect( config ).to receive( :[] ).with( 'testconfig' ).and_return( :a_config_section )
 
-		klass.should_receive( :configure ).with( :a_config_section )
+		expect( klass ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
 	end
@@ -131,11 +121,11 @@ describe Configurability do
 		object.extend( Configurability )
 		object.config_key = :testobjconfig
 
-		config = mock( "configuration object" )
-		config.should_receive( :respond_to? ).with( :testobjconfig ).and_return( true )
-		config.should_receive( :testobjconfig ).and_return( :a_config_section )
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :testobjconfig ).and_return( true )
+		expect( config ).to receive( :testobjconfig ).and_return( :a_config_section )
 
-		object.should_receive( :configure ).with( :a_config_section )
+		expect( object ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
 	end
@@ -146,11 +136,11 @@ describe Configurability do
 		def object.name; "testobjconfig"; end
 		object.extend( Configurability )
 
-		config = mock( "configuration object" )
-		config.should_receive( :respond_to? ).with( :testobjconfig ).and_return( true )
-		config.should_receive( :testobjconfig ).and_return( :a_config_section )
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :testobjconfig ).and_return( true )
+		expect( config ).to receive( :testobjconfig ).and_return( :a_config_section )
 
-		object.should_receive( :configure ).with( :a_config_section )
+		expect( object ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
 	end
@@ -160,11 +150,11 @@ describe Configurability do
 		def object.name; "Test Obj-Config"; end
 		object.extend( Configurability )
 
-		config = mock( "configuration object" )
-		config.should_receive( :respond_to? ).with( :test_obj_config ).and_return( true )
-		config.should_receive( :test_obj_config ).and_return( :a_config_section )
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :test_obj_config ).and_return( true )
+		expect( config ).to receive( :test_obj_config ).and_return( :a_config_section )
 
-		object.should_receive( :configure ).with( :a_config_section )
+		expect( object ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
 	end
@@ -174,11 +164,11 @@ describe Configurability do
 		object = Object.new
 		object.extend( Configurability )
 
-		config = mock( "configuration object" )
-		config.should_receive( :respond_to? ).with( :object ).and_return( true )
-		config.should_receive( :object ).and_return( :a_config_section )
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :object ).and_return( true )
+		expect( config ).to receive( :object ).and_return( :a_config_section )
 
-		object.should_receive( :configure ).with( :a_config_section )
+		expect( object ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
 	end
@@ -190,11 +180,11 @@ describe Configurability do
 			end
 		end
 
-		config = mock( "configuration object" )
-		config.should_receive( :respond_to? ).with( :dbobject ).and_return( true )
-		config.should_receive( :dbobject ).and_return( :a_config_section )
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :dbobject ).and_return( true )
+		expect( config ).to receive( :dbobject ).and_return( :a_config_section )
 
-		My::DbObject.should_receive( :configure ).with( :a_config_section )
+		expect( My::DbObject ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
 	end
@@ -205,11 +195,11 @@ describe Configurability do
 		object = objectclass.new
 		object.extend( Configurability )
 
-		config = mock( "configuration object" )
-		config.should_receive( :respond_to? ).with( :anonymous ).and_return( true )
-		config.should_receive( :anonymous ).and_return( :a_config_section )
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :anonymous ).and_return( true )
+		expect( config ).to receive( :anonymous ).and_return( :a_config_section )
 
-		object.should_receive( :configure ).with( :a_config_section )
+		expect( object ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
 	end
@@ -229,7 +219,7 @@ describe Configurability do
 
 
 		it "should know what the currently-installed configuration is" do
-			Configurability.loaded_config.should equal( @config )
+			expect( Configurability.loaded_config ).to equal( @config )
 		end
 
 		it "propagates the installed configuration to any objects which add Configurability" do
@@ -242,7 +232,8 @@ describe Configurability do
 
 			object = objectclass.new
 			object.extend( Configurability )
-			object.config.should == :yes
+
+			expect( object.config ).to eq( :yes )
 		end
 
 		it "defers configuration until after an object has defined a #configure method if " +
@@ -254,7 +245,7 @@ describe Configurability do
 				class << self; attr_reader :config; end
 			end
 
-			objectclass.config.should == :yes
+			expect( objectclass.config ).to eq( :yes )
 		end
 
 		it "doesn't reconfigure objects that have already been configured unless the config changes" do
@@ -278,9 +269,9 @@ describe Configurability do
 				def self::configure( config ); @configs ||= []; @configs << config; end
 			end
 
-			first_objectclass.configs.should == [ @config[:postconfig] ]
-			second_objectclass.configs.should == [ nil, @config[:postconfig] ]
-			third_objectclass.configs.should == [ nil, @config[:postconfig] ]
+			expect( first_objectclass.configs ).to eq([ @config[:postconfig] ])
+			expect( second_objectclass.configs ).to eq([ nil, @config[:postconfig] ])
+			expect( third_objectclass.configs ).to eq([ nil, @config[:postconfig] ])
 		end
 
 	end
@@ -300,9 +291,11 @@ describe Configurability do
 				Configurability.log.debug "Defaults: %p" % [ self.defaults ]
 			end
 
-			Configurability.gather_defaults.should include( :testconfig )
-			Configurability.gather_defaults[:testconfig].should == klass.const_get( :CONFIG_DEFAULTS )
-			Configurability.gather_defaults[:testconfig].should_not be( klass.const_get(:CONFIG_DEFAULTS) )
+			defaults = Configurability.gather_defaults
+
+			expect( defaults ).to include( :testconfig )
+			expect( defaults[:testconfig] ).to eq( klass.const_get(:CONFIG_DEFAULTS) )
+			expect( defaults[:testconfig] ).to_not be( klass.const_get(:CONFIG_DEFAULTS) )
 		end
 
 		it "fetches defaults from a DEFAULT_CONFIG constant if the object defines one" do
@@ -312,9 +305,11 @@ describe Configurability do
 				self::DEFAULT_CONFIG = { :two => 2, :types => {:two => true} }
 			end
 
-			Configurability.gather_defaults.should include( :testconfig )
-			Configurability.gather_defaults[:testconfig].should == klass.const_get( :DEFAULT_CONFIG )
-			Configurability.gather_defaults[:testconfig].should_not be( klass.const_get(:DEFAULT_CONFIG) )
+			defaults = Configurability.gather_defaults
+
+			expect( defaults ).to include( :testconfig )
+			expect( defaults[:testconfig] ).to eq( klass.const_get(:DEFAULT_CONFIG) )
+			expect( defaults[:testconfig] ).to_not be( klass.const_get(:DEFAULT_CONFIG) )
 		end
 
 		it "fetches defaults from a #defaults method if the object implements one" do
@@ -324,9 +319,11 @@ describe Configurability do
 				def self::defaults; { :other => true }; end
 			end
 
-			Configurability.gather_defaults.should include( :otherconfig )
-			Configurability.gather_defaults[:otherconfig].should == klass.defaults
-			Configurability.gather_defaults[:otherconfig].should_not be( klass.defaults )
+			defaults = Configurability.gather_defaults
+
+			expect( defaults ).to include( :otherconfig )
+			expect( defaults[:otherconfig] ).to eq( klass.defaults )
+			expect( defaults[:otherconfig] ).to_not be( klass.defaults )
 		end
 
 		it "can return a Configurability::Config object with defaults, too" do
@@ -348,12 +345,12 @@ describe Configurability do
 
 			config = Configurability.default_config
 
-			config.should be_a( Configurability::Config )
-			config.testconfig.one.should == 1
-			config.testconfig.two.should == 2
-			config.testconfig.types.one.should be_true()
-			config.testconfig.types.two.should be_true()
-			config.otherconfig.other.should be_true()
+			expect( config ).to be_a( Configurability::Config )
+			expect( config.testconfig.one ).to eq( 1 )
+			expect( config.testconfig.two ).to eq( 2 )
+			expect( config.testconfig.types.one ).to be_true()
+			expect( config.testconfig.types.two ).to be_true()
+			expect( config.otherconfig.other ).to be_true()
 		end
 
 	end
