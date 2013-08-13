@@ -1,20 +1,10 @@
 #!/usr/bin/env ruby
 
-BEGIN {
-	require 'pathname'
-	basedir = Pathname.new( __FILE__ ).dirname.parent.parent
-
-	libdir = basedir + "lib"
-
-	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
-	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
-}
+require 'helpers'
 
 require 'logger'
 require 'fileutils'
 require 'rspec'
-
-require 'spec/lib/helpers'
 
 require 'configurability/config'
 
@@ -56,11 +46,11 @@ describe Configurability::Config do
 	end
 
 	it "can dump itself as YAML" do
-		Configurability::Config.new.dump.strip.should == "--- {}"
+		expect( Configurability::Config.new.dump.strip ).to eq( "--- {}" )
 	end
 
 	it "returns nil as its change description" do
-		Configurability::Config.new.changed_reason.should be_nil()
+		expect( Configurability::Config.new.changed_reason ).to be_nil()
 	end
 
 	it "autogenerates accessors for non-existant struct members" do
@@ -68,18 +58,21 @@ describe Configurability::Config do
 		config.plugins ||= {}
 		config.plugins.filestore ||= {}
 		config.plugins.filestore.maxsize = 1024
-		config.plugins.filestore.maxsize.should == 1024
+
+		expect( config.plugins.filestore.maxsize ).to eq( 1024 )
 	end
 
 	it "merges values loaded from the config with any defaults given" do
 		config = Configurability::Config.new( TEST_CONFIG, :defaultkey => "Oh yeah." )
-		config.defaultkey.should == "Oh yeah."
+
+		expect( config.defaultkey ).to eq( "Oh yeah." )
 	end
 
 	it "yields itself if a block is given at creation" do
 		yielded_self = nil
 		config = Configurability::Config.new { yielded_self = self }
-		yielded_self.should equal( config )
+
+		expect( yielded_self ).to equal( config )
 	end
 
 	it "passes itself as the block argument if a block of arity 1 is given at creation" do
@@ -89,23 +82,26 @@ describe Configurability::Config do
 			yielded_self = self
 			arg_self = arg
 		end
-		yielded_self.should_not equal( config )
-		arg_self.should equal( config )
+
+		expect( yielded_self ).not_to equal( config )
+		expect( arg_self ).to equal( config )
 	end
 
 	it "supports both Symbols and Strings for Hash-like access" do
 		config = Configurability::Config.new( TEST_CONFIG )
-		config[:section]['subsection'][:subsubsection].should == 'value'
+
+		expect( config[:section]['subsection'][:subsubsection] ).to eq( 'value' )
 	end
 
 	it "autoloads predicates for its members" do
 		config = Configurability::Config.new( TEST_CONFIG )
-		config.mergekey?.should be_true()
-		config.mergemonkey?.should be_false()
-		config.section?.should be_true()
-		config.section.subsection?.should be_true()
-		config.section.subsection.subsubsection?.should be_true()
-		config.section.monkeysubsection?.should be_false()
+
+		expect( config.mergekey? ).to be_true()
+		expect( config.mergemonkey? ).to be_false()
+		expect( config.section? ).to be_true()
+		expect( config.section.subsection? ).to be_true()
+		expect( config.section.subsection.subsubsection? ).to be_true()
+		expect( config.section.monkeysubsection? ).to be_false()
 	end
 
 
@@ -122,17 +118,16 @@ describe Configurability::Config do
 		          - pattern2
 		}.gsub(/^\t{2}/, '')
 
-		before( :each ) do
-			@config = Configurability::Config.new( NIL_KEY_CONFIG )
-		end
+		let( :config ) { Configurability::Config.new(NIL_KEY_CONFIG) }
 
 		it "doesn't raise a NoMethodError when loading (issue #1)" do
-			@config[:trap_on]['low disk space alert'][nil][:notepad][:patterns].
-				should == [ 'pattern1', 'pattern2' ]
+			val = config[:trap_on]['low disk space alert'][nil][:notepad][:patterns]
+			expect( val ).to eq([ 'pattern1', 'pattern2' ])
 		end
 
 		it "knows that it has a nil member" do
-			@config[:trap_on]['low disk space alert'].should have_member( nil )
+			val = config[:trap_on]['low disk space alert']
+			expect( val ).to have_member( nil )
 		end
 
 	end
@@ -140,69 +135,67 @@ describe Configurability::Config do
 
 	context "created with in-memory YAML source" do
 
-		before( :each ) do
-			@config = Configurability::Config.new( TEST_CONFIG )
-		end
+		let( :config ) { Configurability::Config.new(TEST_CONFIG) }
 
 		it "responds to methods which are the same as struct members" do
-			@config.should respond_to( :section )
-			@config.section.should respond_to( :subsection )
-			@config.should_not respond_to( :pork_sausage )
+			expect( config ).to respond_to( :section )
+			expect( config.section ).to respond_to( :subsection )
+			expect( config ).not_to respond_to( :pork_sausage )
 		end
 
 		it "contains values specified in the source" do
 			# section:
 			#   subsection:
 			#     subsubsection: value
-			@config.section.subsection.subsubsection.should == 'value'
+			expect( config.section.subsection.subsubsection ).to eq( 'value' )
 
 			# listsection:
 			#   - list
 			#   - values
 			#   - are
 			#   - neat
-			@config.listsection.should == %w[list values are neat]
+			expect( config.listsection ).to eq( %w[list values are neat] )
 
 			# mergekey: Yep.
-			@config.mergekey.should == 'Yep.'
+			expect( config.mergekey ).to eq( 'Yep.' )
 
 			# textsection: |-
 			#   With some text as the value
 			#   ...and another line.
-			@config.textsection.should == "With some text as the value\n...and another line."
+			expect( config.textsection ).to eq("With some text as the value\n...and another line.")
 		end
 
 		it "returns struct members as an Array of Symbols" do
-			@config.members.should be_an_instance_of( Array )
-			@config.members.should have_at_least( 4 ).things
-			@config.members.each do |member|
-				member.should be_an_instance_of( Symbol)
+			expect( config.members ).to be_an_instance_of( Array )
+			expect( config.members ).to have_at_least( 4 ).things
+			config.members.each do |member|
+				expect( member ).to be_an_instance_of( Symbol )
 			end
 		end
 
 		it "is able to iterate over sections" do
-			@config.each do |key, struct|
-				key.should be_an_instance_of( Symbol)
+			config.each do |key, struct|
+				expect( key ).to be_an_instance_of( Symbol )
 			end
 		end
 
 		it "dumps values specified in the source" do
-			@config.dump.should =~ /^section:/
-			@config.dump.should =~ /^\s+subsection:/
-			@config.dump.should =~ /^\s+subsubsection:/
-			@config.dump.should =~ /^- list/
+			expect( config.dump ).to match( /^section:/ )
+			expect( config.dump ).to match( /^\s+subsection:/ )
+			expect( config.dump ).to match( /^\s+subsubsection:/ )
+			expect( config.dump ).to match( /^- list/ )
 		end
 
 		it "provides a human-readable description of itself when inspected" do
-			@config.inspect.should =~ /4 sections/i
-			@config.inspect.should =~ /mergekey/
-			@config.inspect.should =~ /textsection/
-			@config.inspect.should =~ /from memory/i
+			expect( config.inspect ).to match( /4 sections/i )
+			expect( config.inspect ).to match( /mergekey/ )
+			expect( config.inspect ).to match( /textsection/ )
+			expect( config.inspect ).to match( /from memory/i )
 		end
 
 		it "raises an exception when reloaded" do
 			expect {
-				@config.reload
+				config.reload
 			}.to raise_exception( RuntimeError, /can't reload from an in-memory source/i )
 		end
 
@@ -211,19 +204,19 @@ describe Configurability::Config do
 
 	# saving if changed since loaded
 	context " whose internal values have been changed since loaded" do
-		before( :each ) do
-			@config = Configurability::Config.new( TEST_CONFIG )
-			@config.section.subsection.anothersection = 11451
+		let( :config ) do
+			config = Configurability::Config.new( TEST_CONFIG )
+			config.section.subsection.anothersection = 11451
+			config
 		end
 
 
-		### Specifications
 		it "should report that it is changed" do
-			@config.changed?.should == true
+			expect( config.changed? ).to be_true()
 		end
 
 		it "should report that its internal struct was modified as the reason for the change" do
-			@config.changed_reason.should =~ /struct was modified/i
+			expect( config.changed_reason ).to match( /struct was modified/i )
 		end
 
 	end
@@ -241,35 +234,35 @@ describe Configurability::Config do
 			@tmpfile.unlink
 		end
 
-		before( :each ) do
-			@config = Configurability::Config.load( @tmpfile.to_s )
-		end
+		let( :config ) { Configurability::Config.load(@tmpfile.to_s) }
 
 
 		### Specifications
 		it "remembers which file it was loaded from" do
-			@config.path.should == @tmpfile.expand_path
+			expect( config.path ).to eq( @tmpfile.expand_path )
 		end
 
 		it "writes itself back to the same file by default" do
-			@config.port = 114411
-			@config.write
+			config.port = 114411
+			config.write
 			otherconfig = Configurability::Config.load( @tmpfile.to_s )
 
-			otherconfig.port.should == 114411
+			expect( otherconfig.port ).to eq( 114411 )
 		end
 
 		it "can be written to a different file" do
+			begin
 			path = Dir::Tmpname.make_tmpname( './another-', '.config' )
 
-			@config.write( path )
-			File.read( path ).should =~ /section:\n  subsection/
-
-			File.unlink( path )
+				config.write( path )
+				expect( File.read(path) ).to match( /section:\n  subsection/ )
+			ensure
+				File.unlink( path ) if path
+			end
 		end
 
 		it "includes the name of the file in its inspect output" do
-			@config.inspect.should include( File.basename(@tmpfile.to_s) )
+			expect( config.inspect ).to include( File.basename(@tmpfile.to_s) )
 		end
 
 		it "yields itself if a block is given at load-time" do
@@ -277,7 +270,7 @@ describe Configurability::Config do
 			config = Configurability::Config.load( @tmpfile.to_s ) do
 				yielded_self = self
 			end
-			yielded_self.should equal( config )
+			expect( yielded_self ).to equal( config )
 		end
 
 		it "passes itself as the block argument if a block of arity 1 is given at load-time" do
@@ -287,14 +280,15 @@ describe Configurability::Config do
 				yielded_self = self
 				arg_self = arg
 			end
-			yielded_self.should_not equal( config )
-			arg_self.should equal( config )
+
+			expect( yielded_self ).not_to equal( config )
+			expect( arg_self ).to equal( config )
 		end
 
 		it "doesn't re-read its source file if it hasn't changed" do
-			@config.path.should_not_receive( :read )
-			Configurability.should_not_receive( :configure_objects )
-			@config.reload.should be_false()
+			expect( config.path ).not_to receive( :read )
+			expect( Configurability ).not_to receive( :configure_objects )
+			expect( config.reload ).to be_false()
 		end
 	end
 
@@ -323,39 +317,38 @@ describe Configurability::Config do
 
 		### Specifications
 		it "reports that it is changed" do
-			@config.should be_changed
+			expect( @config ).to be_changed
 		end
 
 		it "reports that its source was updated as the reason for the change" do
-			@config.changed_reason.should =~ /source.*updated/i
+			expect( @config.changed_reason ).to match( /source.*updated/i )
 		end
 
 		it "re-reads its file when reloaded" do
-			@config.path.should_receive( :read ).and_return( TEST_CONFIG )
-			Configurability.should_receive( :configure_objects ).with( @config )
-			@config.reload.should be_true()
+			expect( @config.path ).to receive( :read ).and_return( TEST_CONFIG )
+			expect( Configurability ).to receive( :configure_objects ).with( @config )
+			expect( @config.reload ).to be_true()
 		end
 
 		it "reapplies its defaults when reloading" do
-			config = Configurability::Config.load( @tmpfile.to_s, :defaultskey => 8 )
-			config.reload
-			config.defaultskey.should == 8
+			@config = Configurability::Config.load( @tmpfile.to_s, :defaultskey => 8 )
+			@config.reload
+
+			expect( @config.defaultskey ).to eq( 8 )
 		end
 	end
 
 
 	# merging
 	context " created by merging two other configs" do
-		before( :each ) do
-			@config1 = Configurability::Config.new
-			@config2 = Configurability::Config.new( TEST_CONFIG )
-			@merged = @config1.merge( @config2 )
-		end
+		let( :config1 ) { Configurability::Config.new }
+		let( :config2 ) { Configurability::Config.new(TEST_CONFIG) }
+		let( :merged ) { config1.merge(config2) }
 
 
 		### Specifications
 		it "should contain values from both" do
-			@merged.mergekey.should == @config2.mergekey
+			expect( merged.mergekey ).to eq( config2.mergekey )
 		end
 	end
 

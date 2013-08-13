@@ -1,21 +1,11 @@
 #!/usr/bin/env ruby
 
-BEGIN {
-	require 'pathname'
-	basedir = Pathname.new( __FILE__ ).dirname.parent.parent
-
-	libdir = basedir + "lib"
-
-	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
-	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
-}
+require 'helpers'
 
 require 'tempfile'
 require 'logger'
 require 'fileutils'
 require 'rspec'
-
-require 'spec/lib/helpers'
 
 require 'configurability'
 require 'configurability/deferredconfig'
@@ -48,7 +38,7 @@ describe Configurability::DeferredConfig do
 			end
 		end
 
-		a_class.config_object.should == :testing_config
+		expect( a_class.config_object ).to be( :testing_config )
 	end
 
 
@@ -65,7 +55,7 @@ describe Configurability::DeferredConfig do
 			end
 		end
 
-		a_class.config_object.should == :testing_config
+		expect( a_class.config_object ).to be( :testing_config )
 	end
 
 end
