@@ -170,13 +170,13 @@ module Configurability
 	def self::gather_defaults( collection={} )
 		self.configurable_objects.each do |obj|
 			next unless obj.respond_to?( :defaults )
-			unless subhash = obj.defaults
+			if subhash = obj.defaults
+				section = obj.config_key.to_sym
+				Configurability.log.debug "Defaults for %p (%p): %p" % [ obj, section, subhash ]
+				collection.merge!( section => subhash )
+			else
 				Configurability.log.warn "No defaults for %p; skipping" % [ obj ]
-				next
 			end
-			section = obj.config_key.to_sym
-
-			collection.merge!( section => subhash )
 		end
 
 		return collection
@@ -199,7 +199,7 @@ module Configurability
 
 	### Get (and optionally set) the +config_key+ (a Symbol).
 	def config_key( sym=nil )
-		@config_key = sym unless sym.nil?
+		self.config_key = sym unless sym.nil?
 		@config_key ||= Configurability.make_key_from_object( self )
 		@config_key
 	end
@@ -207,6 +207,7 @@ module Configurability
 
 	### Set the config key of the object.
 	def config_key=( sym )
+		Configurability.configurable_objects |= [ self ]
 		@config_key = sym
 	end
 
@@ -230,12 +231,12 @@ module Configurability
 		return nil unless respond_to?( :const_defined? )
 
 		Configurability.log.debug "Looking for defaults in %p's constants." % [ self ]
-		if self.const_defined?( :DEFAULT_CONFIG )
+		if self.const_defined?( :DEFAULT_CONFIG, false )
 			Configurability.log.debug "  found DEFAULT_CONFIG"
-			return self.const_get( :DEFAULT_CONFIG ).dup
-		elsif self.const_defined?( :CONFIG_DEFAULTS )
+			return self.const_get( :DEFAULT_CONFIG, false ).dup
+		elsif self.const_defined?( :CONFIG_DEFAULTS, false )
 			Configurability.log.debug "  found CONFIG_DEFAULTS"
-			return self.const_get( :CONFIG_DEFAULTS ).dup
+			return self.const_get( :CONFIG_DEFAULTS, false ).dup
 		else
 			Configurability.log.debug "  no default constants."
 			return nil

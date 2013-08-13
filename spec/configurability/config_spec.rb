@@ -255,7 +255,7 @@ describe Configurability::Config do
 			path = Dir::Tmpname.make_tmpname( './another-', '.config' )
 
 				config.write( path )
-				expect( File.read(path) ).to match( /section:\n  subsection/ )
+				expect( File.read(path) ).to match( /section: ?\n  subsection/ )
 			ensure
 				File.unlink( path ) if path
 			end
