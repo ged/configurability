@@ -14,4 +14,4 @@ lib/configurability/deferredconfig.rb
 spec/configurability/config_spec.rb
 spec/configurability/deferredconfig_spec.rb
 spec/configurability_spec.rb
-spec/lib/helpers.rb
+spec/helpers.rb

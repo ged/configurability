@@ -1,3 +1,14 @@
+== v2.1.0 [2013-08-13] Michael Granger <ged@FaerieMUD.org>
+
+- Fix behavior of inherited Configurability
+- Convert specs to use RSpec expect syntax
+- Drop support for Ruby 1.8.7.
+
+
+== v2.0.2 [2013-06-14] Mahlon E. Smith <mahlon@martini.nu>
+
+- Added signature for changeset e53b53d65079
+
 == v2.0.2 [2013-06-14] Mahlon E. Smith <mahlon@martini.nu>
 
 - Load YAML safely if the safe_yaml gem is present.
