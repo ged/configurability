@@ -24,8 +24,8 @@ hoespec = Hoe.spec 'configurability' do
 
 	self.dependency 'loggability', '~> 0.4'
 
-	self.dependency 'rspec', '~> 2.4', :developer
-	self.dependency 'simplecov', '~> 0.3', :developer
+	self.dependency 'rspec', '~> 2.14', :developer
+	self.dependency 'simplecov', '~> 0.5', :developer
 
 	self.spec_extras[:licenses] = ["BSD"]
 	self.spec_extras[:rdoc_options] = ['-f', 'fivefish', '-t', 'Configurability Toolkit']

@@ -18,7 +18,7 @@ module Configurability
 
 
 	# Library version constant
-	VERSION = '2.0.2'
+	VERSION = '2.1.0'
 
 	# Version-control revision constant
 	REVISION = %q$Revision$
@@ -99,10 +99,10 @@ module Configurability
 	end
 
 
-	### Configure objects that have had Configurability added to them with 
-	### the sections of the specified +config+ that correspond to their 
+	### Configure objects that have had Configurability added to them with
+	### the sections of the specified +config+ that correspond to their
 	### +config_key+. If the +config+ doesn't #respond_to the object's
-	### +config_key+, the object's #configure method is called with +nil+ 
+	### +config_key+, the object's #configure method is called with +nil+
 	### instead.
 	def self::configure_objects( config )
 		self.log.debug "Splitting up config %p between %d objects with configurability." %

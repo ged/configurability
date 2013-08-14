@@ -39,7 +39,7 @@ class Configurability::Config
 	       Loggability
 
 
-   	# Loggability API -- set up logging through the Configurability module's logger
+	# Loggability API -- set up logging through the Configurability module's logger
 	log_to :configurability
 
 
