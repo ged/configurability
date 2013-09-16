@@ -10,29 +10,30 @@ end
 Hoe.plugin :mercurial
 Hoe.plugin :signing
 Hoe.plugin :deveiate
+Hoe.plugin :bundler
 
 Hoe.plugins.delete :rubyforge
 
 Encoding.default_internal = Encoding::UTF_8
 
-hoespec = Hoe.spec 'configurability' do
-	self.readme_file = 'README.rdoc'
-	self.history_file = 'History.rdoc'
-	self.extra_rdoc_files = Rake::FileList[ '*.rdoc' ]
+hoespec = Hoe.spec 'configurability' do |spec|
+	spec.readme_file = 'README.rdoc'
+	spec.history_file = 'History.rdoc'
+	spec.extra_rdoc_files = Rake::FileList[ '*.rdoc' ]
+	spec.license 'BSD'
 
-	self.developer 'Michael Granger', 'ged@FaerieMUD.org'
+	spec.developer 'Michael Granger', 'ged@FaerieMUD.org'
 
-	self.dependency 'loggability', '~> 0.4'
+	spec.dependency 'loggability', '~> 0.4'
 
-	self.dependency 'rspec', '~> 2.14', :developer
-	self.dependency 'simplecov', '~> 0.5', :developer
+	spec.dependency 'hoe-deveiate', '~> 0.4', :developer
+	spec.dependency 'simplecov', '~> 0.5', :developer
+	spec.dependency 'hoe-bundler', '~> 1.2', :developer
 
-	self.spec_extras[:licenses] = ["BSD"]
-	self.spec_extras[:rdoc_options] = ['-f', 'fivefish', '-t', 'Configurability Toolkit']
-	self.require_ruby_version( '>= 1.9.2' )
+	spec.require_ruby_version( '>= 1.9.2' )
 
-	self.hg_sign_tags = true if self.respond_to?( :hg_sign_tags= )
-	self.rdoc_locations << "deveiate:/usr/local/www/public/code/#{remote_rdoc_dir}"
+	spec.hg_sign_tags = true if spec.respond_to?( :hg_sign_tags= )
+	spec.rdoc_locations << "deveiate:/usr/local/www/public/code/#{remote_rdoc_dir}"
 end
 
 ENV['VERSION'] ||= hoespec.spec.version.to_s
