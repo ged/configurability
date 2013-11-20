@@ -250,7 +250,7 @@ class Configurability::Config
 			   else
 				   YAML.load( source )
 			   end
-		ihash = symbolify_keys( untaint_values(hash) )
+		ihash = symbolify_keys( untaint_hash(hash) )
 		mergedhash = defaults.merge( ihash, &mergefunc )
 
 		return Configurability::Config::Struct.new( mergedhash )
@@ -283,27 +283,34 @@ class Configurability::Config
 
 	### Return a copy of the specified +hash+ with all of its values
 	### untainted.
-	def untaint_values( hash )
+	def untaint_hash( hash )
 		newhash = {}
-		hash.each do |key,val|
-			case val
-			when Hash
-				newhash[ key ] = untaint_values( hash[key] )
-
-			when Array
-				newval = val.collect {|v| v.dup.untaint}
-				newhash[ key ] = newval
-
-			when NilClass, TrueClass, FalseClass, Numeric, Symbol
-				newhash[ key ] = val
-
-			else
-				newval = val.dup
-				newval.untaint
-				newhash[ key ] = newval
-			end
+		hash.each_key do |key|
+			newhash[ key ] = untaint_value( hash[key] )
 		end
 		return newhash
+	end
+
+
+	### Return an untainted copy of the specified +val+.
+	def untaint_value( val )
+		case val
+		when Hash
+			return untaint_hash( val )
+
+		when Array
+			return val.collect {|v| untaint_value(v) }
+
+		when NilClass, TrueClass, FalseClass, Numeric, Symbol, Encoding
+			return val
+
+		else
+			if val.respond_to?( :dup ) && val.respond_to?( :untaint )
+				return val.dup.untaint
+			else
+				return val
+			end
+		end
 	end
 
 
