@@ -1,3 +1,9 @@
+== v2.1.1 [2013-11-20] Michael Granger <ged@FaerieMUD.org>
+
+- Fix untainting to not try to dup/untaint immediate objects.
+  Thanks to john@cozy.co for the bug report.
+
+
 == v2.1.0 [2013-08-13] Michael Granger <ged@FaerieMUD.org>
 
 - Fix behavior of inherited Configurability
