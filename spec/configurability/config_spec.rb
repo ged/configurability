@@ -25,6 +25,12 @@ describe Configurability::Config do
 	  - values
 	  - are
 	  - neat
+	listofints:
+	  - 1
+	  - 2
+	  - 3
+	  - 5
+	  - 7
 	mergekey: Yep.
 	textsection: |-
 	  With some text as the value
@@ -102,6 +108,13 @@ describe Configurability::Config do
 		expect( config.section.subsection? ).to be_true()
 		expect( config.section.subsection.subsubsection? ).to be_true()
 		expect( config.section.monkeysubsection? ).to be_false()
+	end
+
+	it "untaints values loaded from a config" do
+		yaml = TEST_CONFIG.dup.taint
+		config = described_class.new( yaml )
+		expect( config.listsection.first ).to_not be_tainted
+		expect( config.textsection ).to_not be_tainted
 	end
 
 
@@ -187,7 +200,7 @@ describe Configurability::Config do
 		end
 
 		it "provides a human-readable description of itself when inspected" do
-			expect( config.inspect ).to match( /4 sections/i )
+			expect( config.inspect ).to match( /\d+ sections/i )
 			expect( config.inspect ).to match( /mergekey/ )
 			expect( config.inspect ).to match( /textsection/ )
 			expect( config.inspect ).to match( /from memory/i )

@@ -1,4 +1,4 @@
-hoe-deveiate -v0.4.0
+hoe-deveiate -v0.3.0
 simplecov -v0.7.1
 loggability -v0.7.0
 hoe-bundler -v1.2.0
