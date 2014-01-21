@@ -240,7 +240,6 @@ class Configurability::Config
 	protected
 	#########
 
-
 	### Read in the specified +filename+ and return a config struct.
 	def make_configstruct_from_source( source, defaults=nil )
 		defaults ||= {}
@@ -251,7 +250,8 @@ class Configurability::Config
 				   YAML.load( source )
 			   end
 		ihash = symbolify_keys( untaint_hash(hash) )
-		mergedhash = defaults.merge( ihash, &mergefunc )
+		idefaults = symbolify_keys( defaults )
+		mergedhash = idefaults.merge( ihash, &mergefunc )
 
 		return Configurability::Config::Struct.new( mergedhash )
 	end
@@ -277,76 +277,77 @@ class Configurability::Config
 	end
 
 
-	#######
-	private
-	#######
+	# A collection of data-structure-manipulation functions.
+	module DataUtilities
 
-	### Return a copy of the specified +hash+ with all of its values
-	### untainted.
-	def untaint_hash( hash )
-		newhash = {}
-		hash.each_key do |key|
-			newhash[ key ] = untaint_value( hash[key] )
+		### Return a copy of the specified +hash+ with all of its values
+		### untainted.
+		def untaint_hash( hash )
+			newhash = {}
+			hash.each_key do |key|
+				newhash[ key ] = untaint_value( hash[key] )
+			end
+			return newhash
 		end
-		return newhash
-	end
 
 
-	### Return an untainted copy of the specified +val+.
-	def untaint_value( val )
-		case val
-		when Hash
-			return untaint_hash( val )
+		### Return an untainted copy of the specified +val+.
+		def untaint_value( val )
+			case val
+			when Hash
+				return untaint_hash( val )
 
-		when Array
-			return val.collect {|v| untaint_value(v) }
+			when Array
+				return val.collect {|v| untaint_value(v) }
 
-		when NilClass, TrueClass, FalseClass, Numeric, Symbol, Encoding
-			return val
-
-		else
-			if val.respond_to?( :dup ) && val.respond_to?( :untaint )
-				return val.dup.untaint
-			else
+			when NilClass, TrueClass, FalseClass, Numeric, Symbol, Encoding
 				return val
-			end
-		end
-	end
 
-
-	### Return a duplicate of the given +hash+ with its identifier-like keys
-	### transformed into symbols from whatever they were before.
-	def symbolify_keys( hash )
-		newhash = {}
-		hash.each do |key,val|
-			key = key.to_sym if key.respond_to?( :to_sym )
-
-			if val.is_a?( Hash )
-				newhash[ key ] = symbolify_keys( val )
 			else
-				newhash[ key ] = val
+				if val.respond_to?( :dup ) && val.respond_to?( :untaint )
+					return val.dup.untaint
+				else
+					return val
+				end
 			end
 		end
 
-		return newhash
-	end
 
+		### Return a duplicate of the given +hash+ with its identifier-like keys
+		### transformed into symbols from whatever they were before.
+		def symbolify_keys( hash )
+			newhash = {}
+			hash.each do |key,val|
+				key = key.to_sym if key.respond_to?( :to_sym )
 
-	### Return a version of the given +hash+ with its keys transformed
-	### into Strings from whatever they were before.
-	def stringify_keys( hash )
-		newhash = {}
-		hash.each do |key,val|
-			if val.is_a?( Hash )
-				newhash[ key.to_s ] = stringify_keys( val )
-			else
-				newhash[ key.to_s ] = val
+				if val.is_a?( Hash )
+					newhash[ key ] = symbolify_keys( val )
+				else
+					newhash[ key ] = val
+				end
 			end
+
+			return newhash
 		end
 
-		return newhash
+
+		### Return a version of the given +hash+ with its keys transformed
+		### into Strings from whatever they were before.
+		def stringify_keys( hash )
+			newhash = {}
+			hash.each do |key,val|
+				if val.is_a?( Hash )
+					newhash[ key.to_s ] = stringify_keys( val )
+				else
+					newhash[ key.to_s ] = val
+				end
+			end
+
+			return newhash
+		end
 	end
 
+	include DataUtilities
 
 
 	#############################################################
@@ -357,7 +358,8 @@ class Configurability::Config
 	### hashes.
 	class Struct
 		extend Forwardable
-		include Enumerable
+		include Enumerable,
+		        Configurability::Config::DataUtilities
 
 		# Mask most of Kernel's methods away so they don't collide with
 		# config values.
@@ -371,7 +373,7 @@ class Configurability::Config
 		### Create a new ConfigStruct using the values from the given +hash+ if specified.
 		def initialize( hash=nil )
 			hash ||= {}
-			@hash = hash.dup
+			@hash = symbolify_keys( hash )
 			@dirty = false
 		end
 
