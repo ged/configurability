@@ -368,9 +368,9 @@ describe Configurability do
 			expect( config ).to be_a( Configurability::Config )
 			expect( config.testconfig.one ).to eq( 1 )
 			expect( config.testconfig.two ).to eq( 2 )
-			expect( config.testconfig.types.one ).to be_true()
-			expect( config.testconfig.types.two ).to be_true()
-			expect( config.otherconfig.other ).to be_true()
+			expect( config.testconfig.types.one ).to be_truthy()
+			expect( config.testconfig.types.two ).to be_truthy()
+			expect( config.otherconfig.other ).to be_truthy()
 		end
 
 		it "returns defaults for an object that inherits from a class with Configurability" do

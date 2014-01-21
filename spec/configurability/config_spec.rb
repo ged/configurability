@@ -108,12 +108,12 @@ describe Configurability::Config do
 	it "autoloads predicates for its members" do
 		config = Configurability::Config.new( TEST_CONFIG )
 
-		expect( config.mergekey? ).to be_true()
-		expect( config.mergemonkey? ).to be_false()
-		expect( config.section? ).to be_true()
-		expect( config.section.subsection? ).to be_true()
-		expect( config.section.subsection.subsubsection? ).to be_true()
-		expect( config.section.monkeysubsection? ).to be_false()
+		expect( config.mergekey? ).to be_truthy()
+		expect( config.mergemonkey? ).to be_falsey()
+		expect( config.section? ).to be_truthy()
+		expect( config.section.subsection? ).to be_truthy()
+		expect( config.section.subsection.subsubsection? ).to be_truthy()
+		expect( config.section.monkeysubsection? ).to be_falsey()
 	end
 
 	it "untaints values loaded from a config" do
@@ -186,7 +186,7 @@ describe Configurability::Config do
 
 		it "returns struct members as an Array of Symbols" do
 			expect( config.members ).to be_an_instance_of( Array )
-			expect( config.members ).to have_at_least( 4 ).things
+			expect( config.members.size ).to be >= 4
 			config.members.each do |member|
 				expect( member ).to be_an_instance_of( Symbol )
 			end
@@ -231,7 +231,7 @@ describe Configurability::Config do
 
 
 		it "should report that it is changed" do
-			expect( config.changed? ).to be_true()
+			expect( config.changed? ).to be_truthy()
 		end
 
 		it "should report that its internal struct was modified as the reason for the change" do
@@ -307,7 +307,7 @@ describe Configurability::Config do
 		it "doesn't re-read its source file if it hasn't changed" do
 			expect( config.path ).not_to receive( :read )
 			expect( Configurability ).not_to receive( :configure_objects )
-			expect( config.reload ).to be_false()
+			expect( config.reload ).to be_falsey()
 		end
 	end
 
@@ -346,7 +346,7 @@ describe Configurability::Config do
 		it "re-reads its file when reloaded" do
 			expect( @config.path ).to receive( :read ).and_return( TEST_CONFIG )
 			expect( Configurability ).to receive( :configure_objects ).with( @config )
-			expect( @config.reload ).to be_true()
+			expect( @config.reload ).to be_truthy()
 		end
 
 		it "reapplies its defaults when reloading" do
