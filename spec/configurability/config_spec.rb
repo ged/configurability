@@ -74,6 +74,12 @@ describe Configurability::Config do
 		expect( config.defaultkey ).to eq( "Oh yeah." )
 	end
 
+	it "symbolifies keys in defaults (issue #3)" do
+		config = Configurability::Config.new( TEST_CONFIG, 'stringkey' => "String value." )
+
+		expect( config.stringkey ).to eq( "String value." )
+	end
+
 	it "yields itself if a block is given at creation" do
 		yielded_self = nil
 		config = Configurability::Config.new { yielded_self = self }
