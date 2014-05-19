@@ -1,3 +1,8 @@
+== v2.2.0 [2014-05-19] Michael Granger <ged@FaerieMUD.org>
+
+- Add a .default_config method to objects with Configurability.
+
+
 == v2.1.2 [2014-01-20] Michael Granger <ged@FaerieMUD.org>
 
 Symbolify keys of defaults for Configurability::Config.new (fixes #3).
