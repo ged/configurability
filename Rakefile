@@ -6,6 +6,7 @@ rescue LoadError
 	abort "This Rakefile requires 'hoe' (gem install hoe)"
 end
 
+GEMSPEC = 'configurability.gemspec'
 
 Hoe.plugin :mercurial
 Hoe.plugin :signing
@@ -29,6 +30,7 @@ hoespec = Hoe.spec 'configurability' do |spec|
 	spec.dependency 'hoe-deveiate', '~> 0.3', :developer
 	spec.dependency 'simplecov', '~> 0.5', :developer
 	spec.dependency 'hoe-bundler', '~> 1.2', :developer
+	spec.dependency 'rspec', '3.0.0.beta2', :developer
 
 	spec.require_ruby_version( '>= 1.9.2' )
 
@@ -47,4 +49,19 @@ task :coverage do
 	ENV["COVERAGE"] = 'yes'
 	Rake::Task[:spec].invoke
 end
+
+
+task :gemspec => GEMSPEC
+file GEMSPEC => __FILE__
+task GEMSPEC do |task|
+	spec = $hoespec.spec
+	spec.files.delete( '.gemtest' )
+	spec.version = "#{spec.version}.pre#{Time.now.strftime("%Y%m%d%H%M%S")}"
+	File.open( task.name, 'w' ) do |fh|
+		fh.write( spec.to_ruby )
+	end
+end
+
+CLOBBER.include( GEMSPEC.to_s )
+task :default => :gemspec
 

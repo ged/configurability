@@ -243,6 +243,15 @@ module Configurability
 		end
 	end
 
+
+	### Return a Configurability::Config object that contains the configuration
+	### defaults for the receiver.
+	def default_config
+		default_values = self.defaults or return Configurability::Config.new( {} )
+		return Configurability::Config::Struct.new( default_values )
+	end
+
+
 	### Inject Configurability support into Loggability to avoid circular dependency
 	### load issues.
 	Loggability.extend( self )
