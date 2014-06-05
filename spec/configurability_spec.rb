@@ -18,7 +18,12 @@ describe Configurability do
 		setup_logging( :fatal )
 	end
 
-	after( :each ) do
+	before( :each ) do
+		Configurability.configurable_objects.clear
+		Configurability.reset
+	end
+
+	after( :all ) do
 		Configurability.configurable_objects.clear
 		Configurability.reset
 	end
