@@ -4,5 +4,5 @@ loggability -v0.11.0
 hoe-bundler -v1.2.0
 
 hoe-mercurial -v1.4.1
-rspec -v3.0.0.beta2
+rspec -v3.0.0
 hoe -v3.12.0

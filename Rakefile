@@ -25,12 +25,12 @@ hoespec = Hoe.spec 'configurability' do |spec|
 
 	spec.developer 'Michael Granger', 'ged@FaerieMUD.org'
 
-	spec.dependency 'loggability', '~> 0.4'
+	spec.dependency 'loggability', '~> 0.11'
 
-	spec.dependency 'hoe-deveiate', '~> 0.3', :developer
-	spec.dependency 'simplecov', '~> 0.5', :developer
+	spec.dependency 'hoe-deveiate', '~> 0.5', :developer
+	spec.dependency 'simplecov', '~> 0.8', :developer
 	spec.dependency 'hoe-bundler', '~> 1.2', :developer
-	spec.dependency 'rspec', '3.0.0.beta2', :developer
+	spec.dependency 'rspec', '~> 3.0', :developer
 
 	spec.require_ruby_version( '>= 1.9.2' )
 

@@ -300,7 +300,7 @@ describe Configurability do
 	describe "defaults hash" do
 
 		it "can generate a Hash of defaults for all objects with Configurability" do
-			Configurability.gather_defaults.should be_a( Hash )
+			expect(Configurability.gather_defaults).to be_a( Hash )
 		end
 
 		it "fetches defaults from a CONFIG_DEFAULTS constant if the object defines one" do

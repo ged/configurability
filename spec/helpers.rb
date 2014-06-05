@@ -22,21 +22,21 @@ require 'logger'
 require 'erb'
 require 'yaml'
 
+require 'configurability/behavior'
 require 'loggability/spechelpers'
 
 require 'configurability'
 
 
 RSpec.configure do |config|
-	config.mock_with( :rspec ) do |config|
-		config.syntax = :expect
+	config.run_all_when_everything_filtered = true
+	config.filter_run :focus
+	config.order = 'random'
+	config.mock_with( :rspec ) do |mock|
+		mock.syntax = :expect
 	end
 
 	config.include( Loggability::SpecHelpers )
-	config.treat_symbols_as_metadata_keys_with_true_values = true
-
-	config.filter_run_excluding :only_ruby_19 if RUBY_VERSION < '1.9.2'
-
 end
 
 # vim: set nosta noet ts=4 sw=4:
