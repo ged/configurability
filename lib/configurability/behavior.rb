@@ -3,7 +3,7 @@
 require 'configurability'
 require 'rspec'
 
-share_examples_for "an object with Configurability" do
+RSpec.shared_examples "an object with Configurability" do
 
 	it "is extended with Configurability" do
 		expect( Configurability.configurable_objects ).to include( described_class )
