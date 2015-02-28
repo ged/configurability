@@ -1,15 +1,14 @@
 # -*- encoding: utf-8 -*-
-# stub: configurability 2.2.0.pre20140518120400 ruby lib
+# stub: configurability 2.3.0.pre20150227190908 ruby lib
 
 Gem::Specification.new do |s|
   s.name = "configurability"
-  s.version = "2.2.0.pre20140518120400"
+  s.version = "2.3.0.pre20150227190908"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib"]
   s.authors = ["Michael Granger"]
-  s.cert_chain = ["/Users/ged/.gem/ged-public_gem_cert.pem"]
-  s.date = "2014-05-18"
+  s.date = "2015-02-28"
   s.description = "Configurability is a unified, unintrusive, assume-nothing configuration system\nfor Ruby. It lets you keep the configuration for multiple objects in a single\nconfig file, load the file when it's convenient for you, and distribute the\nconfiguration when you're ready, sending it everywhere it needs to go with a\nsingle action."
   s.email = ["ged@FaerieMUD.org"]
   s.executables = ["configurability"]
@@ -19,7 +18,7 @@ Gem::Specification.new do |s|
   s.licenses = ["BSD"]
   s.rdoc_options = ["--main", "README.rdoc"]
   s.required_ruby_version = Gem::Requirement.new(">= 1.9.2")
-  s.rubygems_version = "2.2.2"
+  s.rubygems_version = "2.4.5"
   s.signing_key = "/Volumes/Keys/ged-private_gem_key.pem"
   s.summary = "Configurability is a unified, unintrusive, assume-nothing configuration system for Ruby"
 
@@ -27,32 +26,35 @@ Gem::Specification.new do |s|
     s.specification_version = 4
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<loggability>, ["~> 0.4"])
-      s.add_development_dependency(%q<hoe-mercurial>, ["~> 1.4.0"])
-      s.add_development_dependency(%q<hoe-deveiate>, ["~> 0.5"])
+      s.add_runtime_dependency(%q<loggability>, ["~> 0.11"])
+      s.add_development_dependency(%q<hoe-mercurial>, ["~> 1.4"])
+      s.add_development_dependency(%q<hoe-deveiate>, ["~> 0.6"])
       s.add_development_dependency(%q<hoe-highline>, ["~> 0.2"])
       s.add_development_dependency(%q<rdoc>, ["~> 4.0"])
-      s.add_development_dependency(%q<simplecov>, ["~> 0.5"])
+      s.add_development_dependency(%q<simplecov>, ["~> 0.8"])
       s.add_development_dependency(%q<hoe-bundler>, ["~> 1.2"])
-      s.add_development_dependency(%q<hoe>, ["~> 3.11"])
+      s.add_development_dependency(%q<rspec>, ["~> 3.0"])
+      s.add_development_dependency(%q<hoe>, ["~> 3.13"])
     else
-      s.add_dependency(%q<loggability>, ["~> 0.4"])
-      s.add_dependency(%q<hoe-mercurial>, ["~> 1.4.0"])
-      s.add_dependency(%q<hoe-deveiate>, ["~> 0.5"])
+      s.add_dependency(%q<loggability>, ["~> 0.11"])
+      s.add_dependency(%q<hoe-mercurial>, ["~> 1.4"])
+      s.add_dependency(%q<hoe-deveiate>, ["~> 0.6"])
       s.add_dependency(%q<hoe-highline>, ["~> 0.2"])
       s.add_dependency(%q<rdoc>, ["~> 4.0"])
-      s.add_dependency(%q<simplecov>, ["~> 0.5"])
+      s.add_dependency(%q<simplecov>, ["~> 0.8"])
       s.add_dependency(%q<hoe-bundler>, ["~> 1.2"])
-      s.add_dependency(%q<hoe>, ["~> 3.11"])
+      s.add_dependency(%q<rspec>, ["~> 3.0"])
+      s.add_dependency(%q<hoe>, ["~> 3.13"])
     end
   else
-    s.add_dependency(%q<loggability>, ["~> 0.4"])
-    s.add_dependency(%q<hoe-mercurial>, ["~> 1.4.0"])
-    s.add_dependency(%q<hoe-deveiate>, ["~> 0.5"])
+    s.add_dependency(%q<loggability>, ["~> 0.11"])
+    s.add_dependency(%q<hoe-mercurial>, ["~> 1.4"])
+    s.add_dependency(%q<hoe-deveiate>, ["~> 0.6"])
     s.add_dependency(%q<hoe-highline>, ["~> 0.2"])
     s.add_dependency(%q<rdoc>, ["~> 4.0"])
-    s.add_dependency(%q<simplecov>, ["~> 0.5"])
+    s.add_dependency(%q<simplecov>, ["~> 0.8"])
     s.add_dependency(%q<hoe-bundler>, ["~> 1.2"])
-    s.add_dependency(%q<hoe>, ["~> 3.11"])
+    s.add_dependency(%q<rspec>, ["~> 3.0"])
+    s.add_dependency(%q<hoe>, ["~> 3.13"])
   end
 end
