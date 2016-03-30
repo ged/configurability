@@ -143,7 +143,7 @@ module Configurability
 				section = nil
 			end
 		else
-			self.log.info "  no %p section in %p; configuring with nil" % [ section, config ]
+			self.log.debug "  no %p section in %p; configuring with nil" % [ section, config ]
 			section = nil
 		end
 
