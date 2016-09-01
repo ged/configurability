@@ -52,15 +52,15 @@ describe Configurability::Config do
 	end
 
 	it "can dump itself as YAML" do
-		expect( Configurability::Config.new.dump.strip ).to eq( "--- {}" )
+		expect( described_class.new.dump.strip ).to eq( "--- {}" )
 	end
 
 	it "returns nil as its change description" do
-		expect( Configurability::Config.new.changed_reason ).to be_nil()
+		expect( described_class.new.changed_reason ).to be_nil()
 	end
 
 	it "autogenerates accessors for non-existant struct members" do
-		config = Configurability::Config.new
+		config = described_class.new
 		config.plugins ||= {}
 		config.plugins.filestore ||= {}
 		config.plugins.filestore.maxsize = 1024
@@ -69,20 +69,20 @@ describe Configurability::Config do
 	end
 
 	it "merges values loaded from the config with any defaults given" do
-		config = Configurability::Config.new( TEST_CONFIG, :defaultkey => "Oh yeah." )
+		config = described_class.new( TEST_CONFIG, :defaultkey => "Oh yeah." )
 
 		expect( config.defaultkey ).to eq( "Oh yeah." )
 	end
 
 	it "symbolifies keys in defaults (issue #3)" do
-		config = Configurability::Config.new( TEST_CONFIG, 'stringkey' => "String value." )
+		config = described_class.new( TEST_CONFIG, 'stringkey' => "String value." )
 
 		expect( config.stringkey ).to eq( "String value." )
 	end
 
 	it "yields itself if a block is given at creation" do
 		yielded_self = nil
-		config = Configurability::Config.new { yielded_self = self }
+		config = described_class.new { yielded_self = self }
 
 		expect( yielded_self ).to equal( config )
 	end
@@ -90,7 +90,7 @@ describe Configurability::Config do
 	it "passes itself as the block argument if a block of arity 1 is given at creation" do
 		arg_self = nil
 		yielded_self = nil
-		config = Configurability::Config.new do |arg|
+		config = described_class.new do |arg|
 			yielded_self = self
 			arg_self = arg
 		end
@@ -100,13 +100,13 @@ describe Configurability::Config do
 	end
 
 	it "supports both Symbols and Strings for Hash-like access" do
-		config = Configurability::Config.new( TEST_CONFIG )
+		config = described_class.new( TEST_CONFIG )
 
 		expect( config[:section]['subsection'][:subsubsection] ).to eq( 'value' )
 	end
 
 	it "autoloads predicates for its members" do
-		config = Configurability::Config.new( TEST_CONFIG )
+		config = described_class.new( TEST_CONFIG )
 
 		expect( config.mergekey? ).to be_truthy()
 		expect( config.mergemonkey? ).to be_falsey()
@@ -137,7 +137,7 @@ describe Configurability::Config do
 		          - pattern2
 		}.gsub(/^\t{2}/, '')
 
-		let( :config ) { Configurability::Config.new(NIL_KEY_CONFIG) }
+		let( :config ) { described_class.new(NIL_KEY_CONFIG) }
 
 		it "doesn't raise a NoMethodError when loading (issue #1)" do
 			val = config[:trap_on]['low disk space alert'][nil][:notepad][:patterns]
@@ -154,7 +154,7 @@ describe Configurability::Config do
 
 	context "created with in-memory YAML source" do
 
-		let( :config ) { Configurability::Config.new(TEST_CONFIG) }
+		let( :config ) { described_class.new(TEST_CONFIG) }
 
 		it "responds to methods which are the same as struct members" do
 			expect( config ).to respond_to( :section )
@@ -224,7 +224,7 @@ describe Configurability::Config do
 	# saving if changed since loaded
 	context " whose internal values have been changed since loaded" do
 		let( :config ) do
-			config = Configurability::Config.new( TEST_CONFIG )
+			config = described_class.new( TEST_CONFIG )
 			config.section.subsection.anothersection = 11451
 			config
 		end
@@ -253,7 +253,7 @@ describe Configurability::Config do
 			@tmpfile.unlink
 		end
 
-		let( :config ) { Configurability::Config.load(@tmpfile.to_s) }
+		let( :config ) { described_class.load(@tmpfile.to_s) }
 
 
 		### Specifications
@@ -264,7 +264,7 @@ describe Configurability::Config do
 		it "writes itself back to the same file by default" do
 			config.port = 114411
 			config.write
-			otherconfig = Configurability::Config.load( @tmpfile.to_s )
+			otherconfig = described_class.load( @tmpfile.to_s )
 
 			expect( otherconfig.port ).to eq( 114411 )
 		end
@@ -286,7 +286,7 @@ describe Configurability::Config do
 
 		it "yields itself if a block is given at load-time" do
 			yielded_self = nil
-			config = Configurability::Config.load( @tmpfile.to_s ) do
+			config = described_class.load( @tmpfile.to_s ) do
 				yielded_self = self
 			end
 			expect( yielded_self ).to equal( config )
@@ -295,7 +295,7 @@ describe Configurability::Config do
 		it "passes itself as the block argument if a block of arity 1 is given at load-time" do
 			arg_self = nil
 			yielded_self = nil
-			config = Configurability::Config.load( @tmpfile.to_s ) do |arg|
+			config = described_class.load( @tmpfile.to_s ) do |arg|
 				yielded_self = self
 				arg_self = arg
 			end
@@ -328,7 +328,7 @@ describe Configurability::Config do
 		before( :each ) do
 			old_date = Time.now - 3600
 			File.utime( old_date, old_date, @tmpfile.to_s )
-			@config = Configurability::Config.load( @tmpfile.to_s )
+			@config = described_class.load( @tmpfile.to_s )
 			now = Time.now + 10
 			File.utime( now, now, @tmpfile.to_s )
 		end
@@ -350,7 +350,7 @@ describe Configurability::Config do
 		end
 
 		it "reapplies its defaults when reloading" do
-			@config = Configurability::Config.load( @tmpfile.to_s, :defaultskey => 8 )
+			@config = described_class.load( @tmpfile.to_s, :defaultskey => 8 )
 			@config.reload
 
 			expect( @config.defaultskey ).to eq( 8 )
@@ -360,15 +360,27 @@ describe Configurability::Config do
 
 	# merging
 	context " created by merging two other configs" do
-		let( :config1 ) { Configurability::Config.new }
-		let( :config2 ) { Configurability::Config.new(TEST_CONFIG) }
-		let( :merged ) { config1.merge(config2) }
 
 
 		### Specifications
-		it "should contain values from both" do
+		it "contains values from both" do
+			config1 = described_class.new
+			config2 = described_class.new( TEST_CONFIG )
+			merged = config1.merge(config2)
+
 			expect( merged.mergekey ).to eq( config2.mergekey )
 		end
+
+
+		it "recursively merges shared sub-sections" do
+			config1 = described_class.new( manager: {state_file: '/tmp/manager.state'} )
+			config2 = described_class.new( manager: {port: 1200} )
+			merged = config1.merge( config2 )
+
+			expect( merged.manager.state_file ).to eq( '/tmp/manager.state' )
+			expect( merged.manager.port ).to eq( 1200 )
+		end
+
 	end
 
 end

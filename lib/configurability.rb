@@ -168,12 +168,14 @@ module Configurability
 	### #defaults. The hash for each object will be merged into the +collection+
 	### via #merge!.
 	def self::gather_defaults( collection={} )
+		mergefunc = Configurability::Config.method( :merge_complex_hashes )
+
 		self.configurable_objects.each do |obj|
 			next unless obj.respond_to?( :defaults )
 			if subhash = obj.defaults
 				section = obj.config_key.to_sym
 				Configurability.log.debug "Defaults for %p (%p): %p" % [ obj, section, subhash ]
-				collection.merge!( section => subhash )
+				collection.merge!( section => subhash, &mergefunc )
 			else
 				Configurability.log.warn "No defaults for %p; skipping" % [ obj ]
 			end

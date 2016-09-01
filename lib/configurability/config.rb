@@ -59,7 +59,7 @@ class Configurability::Config
 	### Recursive hash-merge function. Used as the block argument to a Hash#merge.
 	def self::merge_complex_hashes( key, oldval, newval )
 		return oldval.merge( newval, &method(:merge_complex_hashes) ) if
-			oldval.is_a?( Hash ) && newval.is_a?( Hash )
+			oldval.respond_to?( :merge ) && newval.respond_to?( :merge )
 		return newval
 	end
 
