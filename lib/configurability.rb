@@ -18,7 +18,7 @@ module Configurability
 
 
 	# Library version constant
-	VERSION = '2.2.1'
+	VERSION = '2.2.2'
 
 	# Version-control revision constant
 	REVISION = %q$Revision$
