@@ -1,3 +1,10 @@
+== v2.2.2 [2016-09-28] Michael Granger <ged@FaerieMUD.org>
+
+- Fix the merge used by Configurability.gather_defaults
+  It should now correctly merge top-level sections together.
+- Make configuration source logging log at a consistent level.
+
+
 == v2.2.1 [2014-06-04] Michael Granger <ged@FaerieMUD.org>
 
 Update shared behavior to work under RSpec 3.0.0.
