@@ -38,18 +38,12 @@ describe Configurability::Config do
 	}.gsub(/^\t/, '')
 
 
-	before( :all ) do
-		setup_logging( :fatal )
-	end
 
 	after( :each ) do
 		Configurability.configurable_objects.clear
 		Configurability.reset
 	end
 
-	after( :all ) do
-		reset_logging()
-	end
 
 	it "can dump itself as YAML" do
 		expect( described_class.new.dump.strip ).to eq( "--- {}" )

@@ -16,9 +16,6 @@ require 'configurability/deferredconfig'
 #####################################################################
 describe Configurability::DeferredConfig do
 
-	before( :all ) do
-		setup_logging( :fatal )
-	end
 
 	after( :each ) do
 		Configurability.configurable_objects.clear

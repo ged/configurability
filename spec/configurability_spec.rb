@@ -14,10 +14,6 @@ require 'configurability/config'
 
 describe Configurability do
 
-	before( :all ) do
-		setup_logging( :fatal )
-	end
-
 	before( :each ) do
 		Configurability.configurable_objects.clear
 		Configurability.reset

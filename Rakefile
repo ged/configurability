@@ -20,7 +20,7 @@ hoespec = Hoe.spec 'configurability' do |spec|
 	spec.readme_file = 'README.rdoc'
 	spec.history_file = 'History.rdoc'
 	spec.extra_rdoc_files = Rake::FileList[ '*.rdoc' ]
-	spec.license 'BSD'
+	spec.license 'BSD-3-Clause'
 
 	spec.developer 'Michael Granger', 'ged@FaerieMUD.org'
 
@@ -50,16 +50,34 @@ task :coverage do
 end
 
 
-task :gemspec => GEMSPEC
-file GEMSPEC => __FILE__
-task GEMSPEC do |task|
+# Use the fivefish formatter for docs generated from development checkout
+if File.directory?( '.hg' )
+	require 'rdoc/task'
+
+	Rake::Task[ 'docs' ].clear
+	RDoc::Task.new( 'docs' ) do |rdoc|
+	    rdoc.main = "README.md"
+	    rdoc.rdoc_files.include( "*.rdoc", "*.md", "ChangeLog", "lib/**/*.rb" )
+	    rdoc.generator = :fivefish
+		rdoc.title = 'Configurability'
+	    rdoc.rdoc_dir = 'doc'
+	end
+end
+
+
+task :gemspec => [ 'ChangeLog', GEMSPEC ]
+file GEMSPEC => __FILE__ do |task|
 	spec = $hoespec.spec
 	spec.files.delete( '.gemtest' )
-	spec.version = "#{spec.version.bump}.0.pre#{Time.now.strftime("%Y%m%d%H%M%S")}"
+	spec.files.delete( 'LICENSE' )
+	spec.signing_key = nil
+	spec.version = "#{spec.version}.pre#{Time.now.strftime("%Y%m%d%H%M%S")}"
+	spec.cert_chain = [ 'certs/ged.pem' ]
 	File.open( task.name, 'w' ) do |fh|
 		fh.write( spec.to_ruby )
 	end
 end
+CLOBBER.include( GEMSPEC )
 
-CLOBBER.include( GEMSPEC.to_s )
+task :default => :gemspec
 
