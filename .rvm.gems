@@ -1,8 +1,0 @@
-hoe-deveiate -v0.3.0
-simplecov -v0.8.2
-loggability -v0.11.0
-hoe-bundler -v1.2.0
-
-hoe-mercurial -v1.4.1
-rspec -v3.0.0
-hoe -v3.12.0
