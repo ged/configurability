@@ -8,3 +8,4 @@ pkg/
 ^doc/
 \.rbx/
 Gemfile.lock
+\.gem$
