@@ -210,13 +210,19 @@ module Configurability
 	### Set the config key of the object.
 	def config_key=( sym )
 		Configurability.configurable_objects |= [ self ]
-		@config_key = sym
+		@config_key = normalize_config_key( sym )
 	end
 
 
 	### Default configuration method.
 	def configure( config )
 		@config = config
+	end
+
+
+	### Return the specified +key+ normalized into a valid Symbol config key.
+	def normalize_config_key( key )
+		return key.to_s.gsub( /\./, '__' ).to_sym
 	end
 
 
