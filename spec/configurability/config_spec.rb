@@ -49,9 +49,11 @@ describe Configurability::Config do
 		expect( described_class.new.dump.strip ).to eq( "--- {}" )
 	end
 
+
 	it "returns nil as its change description" do
 		expect( described_class.new.changed_reason ).to be_nil()
 	end
+
 
 	it "autogenerates accessors for non-existant struct members" do
 		config = described_class.new
@@ -62,11 +64,13 @@ describe Configurability::Config do
 		expect( config.plugins.filestore.maxsize ).to eq( 1024 )
 	end
 
+
 	it "merges values loaded from the config with any defaults given" do
 		config = described_class.new( TEST_CONFIG, :defaultkey => "Oh yeah." )
 
 		expect( config.defaultkey ).to eq( "Oh yeah." )
 	end
+
 
 	it "symbolifies keys in defaults (issue #3)" do
 		config = described_class.new( TEST_CONFIG, 'stringkey' => "String value." )
@@ -74,12 +78,14 @@ describe Configurability::Config do
 		expect( config.stringkey ).to eq( "String value." )
 	end
 
+
 	it "yields itself if a block is given at creation" do
 		yielded_self = nil
 		config = described_class.new { yielded_self = self }
 
 		expect( yielded_self ).to equal( config )
 	end
+
 
 	it "passes itself as the block argument if a block of arity 1 is given at creation" do
 		arg_self = nil
@@ -93,11 +99,13 @@ describe Configurability::Config do
 		expect( arg_self ).to equal( config )
 	end
 
+
 	it "supports both Symbols and Strings for Hash-like access" do
 		config = described_class.new( TEST_CONFIG )
 
 		expect( config[:section]['subsection'][:subsubsection] ).to eq( 'value' )
 	end
+
 
 	it "autoloads predicates for its members" do
 		config = described_class.new( TEST_CONFIG )
@@ -109,6 +117,7 @@ describe Configurability::Config do
 		expect( config.section.subsection.subsubsection? ).to be_truthy()
 		expect( config.section.monkeysubsection? ).to be_falsey()
 	end
+
 
 	it "untaints values loaded from a config" do
 		yaml = TEST_CONFIG.dup.taint
@@ -138,6 +147,7 @@ describe Configurability::Config do
 			expect( val ).to eq([ 'pattern1', 'pattern2' ])
 		end
 
+
 		it "knows that it has a nil member" do
 			val = config[:trap_on]['low disk space alert']
 			expect( val ).to have_member( nil )
@@ -155,6 +165,7 @@ describe Configurability::Config do
 			expect( config.section ).to respond_to( :subsection )
 			expect( config ).not_to respond_to( :pork_sausage )
 		end
+
 
 		it "contains values specified in the source" do
 			# section:
@@ -178,6 +189,7 @@ describe Configurability::Config do
 			expect( config.textsection ).to eq("With some text as the value\n...and another line.")
 		end
 
+
 		it "returns struct members as an Array of Symbols" do
 			expect( config.members ).to be_an_instance_of( Array )
 			expect( config.members.size ).to be >= 4
@@ -186,11 +198,13 @@ describe Configurability::Config do
 			end
 		end
 
+
 		it "is able to iterate over sections" do
 			config.each do |key, struct|
 				expect( key ).to be_an_instance_of( Symbol )
 			end
 		end
+
 
 		it "dumps values specified in the source" do
 			expect( config.dump ).to match( /^section:/ )
@@ -199,12 +213,14 @@ describe Configurability::Config do
 			expect( config.dump ).to match( /^- list/ )
 		end
 
+
 		it "provides a human-readable description of itself when inspected" do
 			expect( config.inspect ).to match( /\d+ sections/i )
 			expect( config.inspect ).to match( /mergekey/ )
 			expect( config.inspect ).to match( /textsection/ )
 			expect( config.inspect ).to match( /from memory/i )
 		end
+
 
 		it "raises an exception when reloaded" do
 			expect {
@@ -227,6 +243,7 @@ describe Configurability::Config do
 		it "should report that it is changed" do
 			expect( config.changed? ).to be_truthy()
 		end
+
 
 		it "should report that its internal struct was modified as the reason for the change" do
 			expect( config.changed_reason ).to match( /struct was modified/i )
@@ -255,6 +272,7 @@ describe Configurability::Config do
 			expect( config.path ).to eq( @tmpfile.expand_path )
 		end
 
+
 		it "writes itself back to the same file by default" do
 			config.port = 114411
 			config.write
@@ -262,6 +280,7 @@ describe Configurability::Config do
 
 			expect( otherconfig.port ).to eq( 114411 )
 		end
+
 
 		it "can be written to a different file" do
 			begin
@@ -274,9 +293,11 @@ describe Configurability::Config do
 			end
 		end
 
+
 		it "includes the name of the file in its inspect output" do
 			expect( config.inspect ).to include( File.basename(@tmpfile.to_s) )
 		end
+
 
 		it "yields itself if a block is given at load-time" do
 			yielded_self = nil
@@ -285,6 +306,7 @@ describe Configurability::Config do
 			end
 			expect( yielded_self ).to equal( config )
 		end
+
 
 		it "passes itself as the block argument if a block of arity 1 is given at load-time" do
 			arg_self = nil
@@ -298,6 +320,7 @@ describe Configurability::Config do
 			expect( arg_self ).to equal( config )
 		end
 
+
 		it "doesn't re-read its source file if it hasn't changed" do
 			expect( config.path ).not_to receive( :read )
 			expect( Configurability ).not_to receive( :configure_objects )
@@ -308,6 +331,7 @@ describe Configurability::Config do
 
 	# reload if file changes
 	context " whose file changes after loading" do
+
 		before( :all ) do
 			filename = Dir::Tmpname.make_tmpname( './test', '.conf' )
 			@tmpfile = Pathname( filename )
@@ -333,15 +357,18 @@ describe Configurability::Config do
 			expect( @config ).to be_changed
 		end
 
+
 		it "reports that its source was updated as the reason for the change" do
 			expect( @config.changed_reason ).to match( /source.*updated/i )
 		end
+
 
 		it "re-reads its file when reloaded" do
 			expect( @config.path ).to receive( :read ).and_return( TEST_CONFIG )
 			expect( Configurability ).to receive( :configure_objects ).with( @config )
 			expect( @config.reload ).to be_truthy()
 		end
+
 
 		it "reapplies its defaults when reloading" do
 			@config = described_class.load( @tmpfile.to_s, :defaultskey => 8 )
