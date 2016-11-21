@@ -16,11 +16,11 @@ require 'configurability/deferredconfig'
 #####################################################################
 describe Configurability::DeferredConfig do
 
-
 	after( :each ) do
 		Configurability.configurable_objects.clear
 		Configurability.reset
 	end
+
 
 	it "calls Configurability.install_config with itself when a 'configure' method is defined" do
 		config = { :testing => :testing_config }

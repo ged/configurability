@@ -34,6 +34,7 @@ describe Configurability do
 		expect( klass.config_key ).to be( :testconfig )
 	end
 
+
 	it "fetches config sections via a method with the config key name if the config " +
 	   "responds_to? it" do
 		klass = Class.new do
@@ -49,6 +50,7 @@ describe Configurability do
 		Configurability.configure_objects( config )
 	end
 
+
 	it "extends including classes instead of appending features to them" do
 		klass = Class.new do
 			include Configurability
@@ -62,6 +64,7 @@ describe Configurability do
 		expect( klass ).to receive( :configure ).with( :a_config_section )
 		Configurability.configure_objects( config )
 	end
+
 
 	it "fetches config sections via the index operator if the config doesn't respond " +
 	   "directly to the section name, but does to the index operator and #key?" do
@@ -81,6 +84,7 @@ describe Configurability do
 		Configurability.configure_objects( config )
 	end
 
+
 	it "passes nil to the configure method if the config doesn't respond to the section " +
 	   "name or the index operator" do
 		klass = Class.new do
@@ -96,6 +100,7 @@ describe Configurability do
 
 		Configurability.configure_objects( config )
 	end
+
 
 	it "tries the config key as a String if calling it with the Symbol returns nil" do
 		klass = Class.new do
@@ -117,6 +122,7 @@ describe Configurability do
 		Configurability.configure_objects( config )
 	end
 
+
 	it "can be used to configure plain objects, too" do
 		object = Object.new
 		object.extend( Configurability )
@@ -130,6 +136,7 @@ describe Configurability do
 
 		Configurability.configure_objects( config )
 	end
+
 
 	it "configures classes that have inherited Configurability and set a different config_key" do
 		klass = Class.new do
@@ -151,6 +158,7 @@ describe Configurability do
 		Configurability.configure_objects( config )
 	end
 
+
 	it "uses the object's name for its config key if it has one and hasn't specified a key " +
 	   "directly" do
 		object = Object.new
@@ -166,6 +174,7 @@ describe Configurability do
 		Configurability.configure_objects( config )
 	end
 
+
 	it "normalizes the object's name before using it" do
 		object = Object.new
 		def object.name; "Test Obj-Config"; end
@@ -180,6 +189,7 @@ describe Configurability do
 		Configurability.configure_objects( config )
 	end
 
+
 	it "uses the object's class's name for its config key if it doesn't have a name and " +
 	   "hasn't specified a key directly" do
 		object = Object.new
@@ -193,6 +203,7 @@ describe Configurability do
 
 		Configurability.configure_objects( config )
 	end
+
 
 	it "uses only the last part of a class's name if it is namespaced" do
 		module My
@@ -209,6 +220,7 @@ describe Configurability do
 
 		Configurability.configure_objects( config )
 	end
+
 
 	it "uses the 'anonymous' key if the object doesn't have a name, and its class is " +
 	   "anonymous, and it hasn't specified a key directly" do
@@ -243,6 +255,7 @@ describe Configurability do
 			expect( Configurability.loaded_config ).to equal( @config )
 		end
 
+
 		it "propagates the installed configuration to any objects which add Configurability" do
 			objectclass = Class.new do
 				def initialize; @config = nil; end
@@ -257,6 +270,7 @@ describe Configurability do
 			expect( object.config ).to eq( :yes )
 		end
 
+
 		it "defers configuration until after an object has defined a #configure method if " +
 		   "it adds Configurability before declaring one" do
 			objectclass = Class.new do
@@ -268,6 +282,7 @@ describe Configurability do
 
 			expect( objectclass.config ).to eq( :yes )
 		end
+
 
 		it "doesn't reconfigure objects that have already been configured unless the config changes" do
 			first_objectclass = Class.new do
@@ -304,6 +319,7 @@ describe Configurability do
 			expect(Configurability.gather_defaults).to be_a( Hash )
 		end
 
+
 		it "fetches defaults from a CONFIG_DEFAULTS constant if the object defines one" do
 			klass = Class.new do
 				extend Configurability
@@ -319,6 +335,7 @@ describe Configurability do
 			expect( defaults[:testconfig] ).to_not be( klass.const_get(:CONFIG_DEFAULTS) )
 		end
 
+
 		it "fetches defaults from a DEFAULT_CONFIG constant if the object defines one" do
 			klass = Class.new do
 				extend Configurability
@@ -333,6 +350,7 @@ describe Configurability do
 			expect( defaults[:testconfig] ).to_not be( klass.const_get(:DEFAULT_CONFIG) )
 		end
 
+
 		it "fetches defaults from a #defaults method if the object implements one" do
 			klass = Class.new do
 				extend Configurability
@@ -346,6 +364,7 @@ describe Configurability do
 			expect( defaults[:otherconfig] ).to eq( klass.defaults )
 			expect( defaults[:otherconfig] ).to_not be( klass.defaults )
 		end
+
 
 		it "can return a Configurability::Config object with defaults, too" do
 			klass1 = Class.new do
@@ -374,6 +393,7 @@ describe Configurability do
 			expect( config.otherconfig.other ).to be_truthy()
 		end
 
+
 		it "returns defaults for an object that inherits from a class with Configurability" do
 			klass = Class.new do
 				extend Configurability
@@ -390,7 +410,6 @@ describe Configurability do
 
 			expect( config ).to respond_to( :spanishconfig )
 			expect( config.spanishconfig.uno ).to eq( 1 )
-
 		end
 
 	end
