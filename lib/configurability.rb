@@ -126,38 +126,46 @@ module Configurability
 
 	### Install the appropriate section of the +config+ into the given +object+.
 	def self::install_config( config, object )
-		section = object.config_key.to_sym
-		self.log.debug "Configuring %p with the %p section of the config." %
-			[ object, section ]
+		self.log.debug "Configuring %p with the %s section of the config." %
+			[ object, object.config_key ]
 
-		if config.respond_to?( section )
-			self.log.debug "  config has a %p method; using that" % [ section ]
-			section = config.send( section )
-		elsif config.respond_to?( :[] ) && config.respond_to?( :key? )
-			self.log.debug "  config has a hash-ish interface..."
-			if config.key?( section ) || config.key?( section.to_s )
-				self.log.debug "    and has a %p member; using that" % [ section ]
-				section = config[section] || config[section.to_s]
-			else
-				self.log.debug "    but no %p member."
-				section = nil
-			end
-		else
-			self.log.debug "  no %p section in %p; configuring with nil" % [ section, config ]
-			section = nil
-		end
-
-		# Figure out if the configure method has already been called with this config
-		# section before, and don't re-call it if so
+		section = self.find_config_section( config, object.config_key )
 		configure_method = object.method( :configure )
-
-		if self.configured[ configure_method ] == section
-			self.log.debug "  avoiding re-calling %p" % [ configure_method ]
-			return
-		end
 
 		self.log.debug "  calling %p" % [ configure_method ]
 		configure_method.call( section )
+	end
+
+
+	### Find the section of the specified +config+ object that corresponds to the
+	### given +key+.
+	def self::find_config_section( config, key )
+		return key.to_s.split( '__' ).inject( config ) do |section, subkey|
+			next nil if section.nil?
+			self.get_config_subsection( section, subkey.to_sym )
+		end
+	end
+
+
+	### Return the subsection of the specified +config+ that corresponds to +key+, trying
+	### both struct-like and hash-like interfaces.
+	def self::get_config_subsection( config, key )
+		if config.respond_to?( key )
+			self.log.debug "  config has a #%s method; using that" % [ key ]
+			return config.send( key )
+		elsif config.respond_to?( :[] ) && config.respond_to?( :key? )
+			self.log.debug "  config has a hash-ish interface..."
+			if config.key?( key.to_sym ) || config.key?( key.to_s )
+				self.log.debug "    and has a %s member; using that" % [ key ]
+				return config[ key.to_sym ] || config[ key.to_s ]
+			else
+				self.log.debug "    but no `%s` member." % [ key ]
+				return nil
+			end
+		else
+			self.log.debug "  no %p section in %p; configuring with nil" % [ key, config ]
+			return nil
+		end
 	end
 
 
@@ -172,16 +180,27 @@ module Configurability
 
 		self.configurable_objects.each do |obj|
 			next unless obj.respond_to?( :defaults )
-			if subhash = obj.defaults
-				section = obj.config_key.to_sym
-				Configurability.log.debug "Defaults for %p (%p): %p" % [ obj, section, subhash ]
-				collection.merge!( section => subhash, &mergefunc )
+			if defaults_hash = obj.defaults
+				nested_hash = self.expand_config_hash( obj.config_key, defaults_hash )
+				Configurability.log.debug "Defaults for %p (%p): %p" %
+					[ obj, obj.config_key, nested_hash ]
+
+				collection.merge!( nested_hash, &mergefunc )
 			else
 				Configurability.log.warn "No defaults for %p; skipping" % [ obj ]
 			end
 		end
 
 		return collection
+	end
+
+
+	### Nest the specified +hash+ inside subhashes for each subsection of the given +key+ and
+	### return the result.
+	def self::expand_config_hash( key, hash )
+		return key.to_s.split( '__' ).reverse.inject( hash ) do |inner_hash, subkey|
+			{ subkey.to_sym => inner_hash }
+		end
 	end
 
 

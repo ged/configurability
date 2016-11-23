@@ -71,7 +71,7 @@ file GEMSPEC => __FILE__ do |task|
 	spec.files.delete( '.gemtest' )
 	spec.files.delete( 'LICENSE' )
 	spec.signing_key = nil
-	spec.version = "#{spec.version}.pre#{Time.now.strftime("%Y%m%d%H%M%S")}"
+	spec.version = "#{spec.version.bump}.0.pre#{Time.now.strftime("%Y%m%d%H%M%S")}"
 	spec.cert_chain = [ 'certs/ged.pem' ]
 	File.open( task.name, 'w' ) do |fh|
 		fh.write( spec.to_ruby )
