@@ -35,6 +35,26 @@ describe Configurability do
 	end
 
 
+	it "allows a config key to specify a sub-section" do
+		klass = Class.new do
+			extend Configurability
+			config_key :testconfig__subsection
+		end
+
+		expect( klass.config_key ).to eq( :testconfig__subsection )
+	end
+
+
+	it "allows a config key to specify a sub-section via a more-readable string" do
+		klass = Class.new do
+			extend Configurability
+			config_key "testconfig.subsection"
+		end
+
+		expect( klass.config_key ).to eq( :testconfig__subsection )
+	end
+
+
 	it "fetches config sections via a method with the config key name if the config " +
 	   "responds_to? it" do
 		klass = Class.new do
@@ -51,17 +71,21 @@ describe Configurability do
 	end
 
 
-	it "extends including classes instead of appending features to them" do
+	it "fetches config subsections via a method chain that corresponds to the config key" do
 		klass = Class.new do
-			include Configurability
-			config_key :testconfig
+			extend Configurability
+			config_key "testconfig.subsection"
 		end
 
 		config = double( "configuration object" )
 		expect( config ).to receive( :respond_to? ).with( :testconfig ).and_return( true )
-		expect( config ).to receive( :testconfig ).and_return( :a_config_section )
 
-		expect( klass ).to receive( :configure ).with( :a_config_section )
+		section = double( "configuration section" )
+		expect( config ).to receive( :testconfig ).and_return( section )
+		expect( section ).to receive( :respond_to? ).with( :subsection ).and_return( true )
+		expect( section ).to receive( :subsection ).and_return( :the_config_subsection )
+
+		expect( klass ).to receive( :configure ).with( :the_config_subsection )
 		Configurability.configure_objects( config )
 	end
 
@@ -81,6 +105,32 @@ describe Configurability do
 		expect( config ).to receive( :[] ).with( :testconfig ).and_return( :a_config_section )
 
 		expect( klass ).to receive( :configure ).with( :a_config_section )
+		Configurability.configure_objects( config )
+	end
+
+
+	it "fetches config subsections via the index operator if the config doesn't respond " +
+	   "directly to the section name, but does to the index operator and #key?" do
+		klass = Class.new do
+			extend Configurability
+			config_key :testconfig__subsection
+		end
+
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :testconfig ).and_return( false )
+		expect( config ).to receive( :respond_to? ).with( :key? ).and_return( true )
+		expect( config ).to receive( :respond_to? ).with( :[] ).and_return( true )
+		expect( config ).to receive( :key? ).with( :testconfig ).and_return( true )
+
+		section = double( "configuration section" )
+		expect( config ).to receive( :[] ).with( :testconfig ).and_return( section )
+		expect( section ).to receive( :respond_to? ).with( :subsection ).and_return( false )
+		expect( section ).to receive( :respond_to? ).with( :key? ).and_return( true )
+		expect( section ).to receive( :respond_to? ).with( :[] ).and_return( true )
+		expect( section ).to receive( :key? ).with( :subsection ).and_return( true )
+		expect( section ).to receive( :[] ).with( :subsection ).and_return( :the_config_subsection )
+
+		expect( klass ).to receive( :configure ).with( :the_config_subsection )
 		Configurability.configure_objects( config )
 	end
 
@@ -119,6 +169,21 @@ describe Configurability do
 
 		expect( klass ).to receive( :configure ).with( :a_config_section )
 
+		Configurability.configure_objects( config )
+	end
+
+
+	it "extends including classes instead of appending features to them" do
+		klass = Class.new do
+			include Configurability
+			config_key :testconfig
+		end
+
+		config = double( "configuration object" )
+		expect( config ).to receive( :respond_to? ).with( :testconfig ).and_return( true )
+		expect( config ).to receive( :testconfig ).and_return( :a_config_section )
+
+		expect( klass ).to receive( :configure ).with( :a_config_section )
 		Configurability.configure_objects( config )
 	end
 
@@ -190,7 +255,7 @@ describe Configurability do
 	end
 
 
-	it "uses the object's class's name for its config key if it doesn't have a name and " +
+	it "uses the object's class name for its config key if it doesn't have a name and " +
 	   "hasn't specified a key directly" do
 		object = Object.new
 		object.extend( Configurability )
@@ -363,6 +428,19 @@ describe Configurability do
 			expect( defaults ).to include( :otherconfig )
 			expect( defaults[:otherconfig] ).to eq( klass.defaults )
 			expect( defaults[:otherconfig] ).to_not be( klass.defaults )
+		end
+
+
+		it "returns nested hashes for subsection defaults" do
+			klass = Class.new do
+				extend Configurability
+				config_key "testconfig.subsection"
+				self::CONFIG_DEFAULTS = { one: 1, two: 2 }
+			end
+
+			defaults = Configurability.gather_defaults
+
+			expect( defaults ).to eq({ testconfig: { subsection: {one: 1, two: 2} } })
 		end
 
 
