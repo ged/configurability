@@ -18,7 +18,7 @@ module Configurability
 
 
 	# Library version constant
-	VERSION = '2.2.2'
+	VERSION = '3.0.0'
 
 	# Version-control revision constant
 	REVISION = %q$Revision$
@@ -169,6 +169,15 @@ module Configurability
 	end
 
 
+	### Nest the specified +hash+ inside subhashes for each subsection of the given +key+ and
+	### return the result.
+	def self::expand_config_hash( key, hash )
+		return key.to_s.split( '__' ).reverse.inject( hash ) do |inner_hash, subkey|
+			{ subkey.to_sym => inner_hash }
+		end
+	end
+
+
 	### Gather defaults from objects with Configurability in the given +collection+
 	### object. Objects that wish to add a section to the defaults should implement
 	### a #defaults method in the same scope as #configure that returns the Hash of
@@ -192,15 +201,6 @@ module Configurability
 		end
 
 		return collection
-	end
-
-
-	### Nest the specified +hash+ inside subhashes for each subsection of the given +key+ and
-	### return the result.
-	def self::expand_config_hash( key, hash )
-		return key.to_s.split( '__' ).reverse.inject( hash ) do |inner_hash, subkey|
-			{ subkey.to_sym => inner_hash }
-		end
 	end
 
 
@@ -274,7 +274,7 @@ module Configurability
 	### Return a Configurability::Config object that contains the configuration
 	### defaults for the receiver.
 	def default_config
-		default_values = self.defaults or return Configurability::Config.new( {} )
+		default_values = self.defaults or return Configurability::Config::Struct.new( {} )
 		return Configurability::Config::Struct.new( default_values )
 	end
 

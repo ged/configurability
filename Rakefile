@@ -17,21 +17,27 @@ Hoe.plugins.delete :rubyforge
 Encoding.default_internal = Encoding::UTF_8
 
 hoespec = Hoe.spec 'configurability' do |spec|
-	spec.readme_file = 'README.rdoc'
-	spec.history_file = 'History.rdoc'
-	spec.extra_rdoc_files = Rake::FileList[ '*.rdoc' ]
+	spec.readme_file = 'README.md'
+	spec.history_file = 'History.md'
+	spec.extra_rdoc_files = FileList[ '*.rdoc', '*.md' ]
 	spec.license 'BSD-3-Clause'
+	spec.urls = {
+		home:   'http://deveiate.org/projects/configurability',
+		code:   'http://bitbucket.org/ged/configurability',
+		docs:   'http://deveiate.org/code/configurability',
+		github: 'http://github.com/ged/configurability',
+	}
 
 	spec.developer 'Michael Granger', 'ged@FaerieMUD.org'
+	spec.developer 'Mahlon E. Smith', 'mahlon@martini.nu'
 
 	spec.dependency 'loggability', '~> 0.11'
 
-	spec.dependency 'hoe-deveiate', '~> 0.5', :developer
-	spec.dependency 'simplecov', '~> 0.8', :developer
-	spec.dependency 'hoe-bundler', '~> 1.2', :developer
-	spec.dependency 'rspec', '~> 3.0', :developer
+	spec.dependency 'hoe-deveiate', '~> 0.8', :developer
+	spec.dependency 'simplecov', '~> 0.12', :developer
+	spec.dependency 'rspec', '~> 3.5', :developer
 
-	spec.require_ruby_version( '>= 1.9.2' )
+	spec.require_ruby_version( '>= 2.2.0' )
 
 	spec.hg_sign_tags = true if spec.respond_to?( :hg_sign_tags= )
 	spec.rdoc_locations << "deveiate:/usr/local/www/public/code/#{remote_rdoc_dir}"
