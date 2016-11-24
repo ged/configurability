@@ -1,12 +1,20 @@
-= Configurability
+# Configurability
 
-home :: https://bitbucket.org/ged/configurability
-code :: https://bitbucket.org/ged/configurability
-docs :: http://deveiate.org/code/configurability
-github :: https://github.com/ged/configurability
+home
+: https://bitbucket.org/ged/configurability
+
+code
+: https://bitbucket.org/ged/configurability
+
+docs
+: http://deveiate.org/code/configurability
+
+github
+: https://github.com/ged/configurability
 
 
-== Description
+
+## Description
 
 Configurability is a unified, unintrusive, assume-nothing configuration system
 for Ruby. It lets you keep the configuration for multiple objects in a single
@@ -16,12 +24,12 @@ single action.
 
 
 
-== Installation
+## Installation
 
     gem install configurability
 
 
-== Usage
+## Usage
 
 To add configurability to a class, just require the library and extend
 the class:
@@ -68,14 +76,20 @@ When the configuration is loaded, an instance variable called `@config` is set
 to the appropriate section of the config object for each object that has
 been extended with Configurability.
 
+As you add more objects to your configuration, it may be useful to group
+related sections together. You can specify that your object's configuration
+is part of a group by prepending the name of the group to your config key
+separated by a double underscore (`__`)
 
-== Customization
+
+## Customization
 
 The default behavior above is just provided as a reasonable default; it is
 expected that you'll want to customize at least one or two things about
 how configuration is handled in your objects.
 
-=== Setting a Custom Config Key
+
+### Setting a Custom Config Key
 
 The first thing you might want to do is change the config section that
 corresponds to your object. You can do that by declaring a different
@@ -96,10 +110,8 @@ as a Symbol:
         end
     end
 
-=== Changing How an Object Is Configured
 
-[:FIXME:] Explain the 'at least once' configuration call, and how to handle
-being called with 'nil'.
+### Changing How an Object Is Configured
 
 You can also change what happens when an object is configured by implementing
 a `#configure` method that takes the config section as an argument:
@@ -119,7 +131,7 @@ If you still want the `@config` variable to be set, just `super` from your
 implementation; don't if you don't want it to be set.
 
 
-== Configuration Objects
+## Configuration Objects
 
 Configurability also includes `Configurability::Config`, a fairly simple
 configuration object class that can be used to load a YAML configuration file,
@@ -237,15 +249,31 @@ or write it back to the file it was loaded from:
 	config.write
 
 
-== Configuration Defaults
+## Configuration Defaults
 
-Configurability also supports an API for generating a new config file with
-defaults for all objects with Configurability.
+It's a good idea to provide a set of reasonable defaults for any configured
+object. Configurability provides a `defaults` method that will look for a constant
+called either `DEFAULT_CONFIG` or `CONFIG_DEFAULTS` on each object extended with
+Configurability, and will return a dup of the value of this constant if it does.
 
-[:FIXME:] Finish up the documentation
+You can also override `defaults` yourself if you wish to provide them via something
+other than a constant.
+
+There are also a couple of useful functions built on top of this method:
+
+gather_defaults
+: You can fetch a Hash of the default config values of all objects that have been extended 
+  with Configurability by calling `Configurabilty.gather_defaults`. You can also pass an
+  object that responds to `#merge!` to the method to merge the defaults into an existing
+  config.
+
+default_config
+: This will return a Configurability::Config object made from the results of
+  `gather_defaults`. This makes it easy to write a config file that contains the default
+  configuration: `Configurability.default_config.write( "defaults.yml" )`
 
 
-== Development
+## Development
 
 You can submit bug reports, suggestions, clone it with Mercurial, and
 read more about future plans at 
@@ -261,9 +289,9 @@ This task will install any missing dependencies, run the tests/specs,
 and generate the API documentation.
 
 
-== License
+## License
 
-Copyright (c) 2010-2016 Michael Granger
+Copyright (c) 2010-2016 Michael Granger and Mahlon E. Smith
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

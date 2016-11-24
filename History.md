@@ -1,3 +1,14 @@
+== v3.0.0 [2016-11-23] Michael Granger <ged@FaerieMUD.org>
+
+Enhancement:
+
+- Add hierarchical config keys.
+
+
+== v2.2.2 [2016-09-28] Michael Granger <ged@FaerieMUD.org>
+
+- Added signature for changeset 806d1f512f55
+
 == v2.2.2 [2016-09-28] Michael Granger <ged@FaerieMUD.org>
 
 - Fix the merge used by Configurability.gather_defaults

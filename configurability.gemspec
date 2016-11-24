@@ -1,24 +1,24 @@
 # -*- encoding: utf-8 -*-
-# stub: configurability 2.3.0.pre20161121123955 ruby lib
+# stub: configurability 3.1.0.pre20161123172826 ruby lib
 
 Gem::Specification.new do |s|
   s.name = "configurability".freeze
-  s.version = "2.3.0.pre20161121123955"
+  s.version = "3.1.0.pre20161123172826"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
-  s.authors = ["Michael Granger".freeze]
+  s.authors = ["Michael Granger".freeze, "Mahlon E. Smith".freeze]
   s.cert_chain = ["certs/ged.pem".freeze]
-  s.date = "2016-11-21"
+  s.date = "2016-11-24"
   s.description = "Configurability is a unified, unintrusive, assume-nothing configuration system\nfor Ruby. It lets you keep the configuration for multiple objects in a single\nconfig file, load the file when it's convenient for you, and distribute the\nconfiguration when you're ready, sending it everywhere it needs to go with a\nsingle action.".freeze
-  s.email = ["ged@FaerieMUD.org".freeze]
+  s.email = ["ged@FaerieMUD.org".freeze, "mahlon@martini.nu".freeze]
   s.executables = ["configurability".freeze]
-  s.extra_rdoc_files = ["History.rdoc".freeze, "Manifest.txt".freeze, "README.rdoc".freeze, "History.rdoc".freeze, "README.rdoc".freeze]
-  s.files = ["ChangeLog".freeze, "History.rdoc".freeze, "Manifest.txt".freeze, "README.rdoc".freeze, "Rakefile".freeze, "bin/configurability".freeze, "examples/basicconfig.rb".freeze, "examples/config.yml".freeze, "lib/configurability.rb".freeze, "lib/configurability/behavior.rb".freeze, "lib/configurability/config.rb".freeze, "lib/configurability/deferredconfig.rb".freeze, "spec/configurability/config_spec.rb".freeze, "spec/configurability/deferredconfig_spec.rb".freeze, "spec/configurability_spec.rb".freeze, "spec/helpers.rb".freeze]
-  s.homepage = "https://bitbucket.org/ged/configurability".freeze
+  s.extra_rdoc_files = ["History.md".freeze, "Manifest.txt".freeze, "README.md".freeze, "History.md".freeze, "README.md".freeze]
+  s.files = ["ChangeLog".freeze, "History.md".freeze, "Manifest.txt".freeze, "README.md".freeze, "Rakefile".freeze, "bin/configurability".freeze, "examples/basicconfig.rb".freeze, "examples/config.yml".freeze, "lib/configurability.rb".freeze, "lib/configurability/behavior.rb".freeze, "lib/configurability/config.rb".freeze, "lib/configurability/deferredconfig.rb".freeze, "spec/configurability/config_spec.rb".freeze, "spec/configurability/deferredconfig_spec.rb".freeze, "spec/configurability_spec.rb".freeze, "spec/helpers.rb".freeze]
+  s.homepage = "http://deveiate.org/projects/configurability".freeze
   s.licenses = ["BSD-3-Clause".freeze]
-  s.rdoc_options = ["--main".freeze, "README.rdoc".freeze]
-  s.required_ruby_version = Gem::Requirement.new(">= 1.9.2".freeze)
+  s.rdoc_options = ["--main".freeze, "README.md".freeze]
+  s.required_ruby_version = Gem::Requirement.new(">= 2.2.0".freeze)
   s.rubygems_version = "2.6.8".freeze
   s.summary = "Configurability is a unified, unintrusive, assume-nothing configuration system for Ruby".freeze
 
@@ -30,9 +30,8 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<hoe-mercurial>.freeze, ["~> 1.4"])
       s.add_development_dependency(%q<hoe-deveiate>.freeze, ["~> 0.8"])
       s.add_development_dependency(%q<hoe-highline>.freeze, ["~> 0.2"])
-      s.add_development_dependency(%q<simplecov>.freeze, ["~> 0.8"])
-      s.add_development_dependency(%q<hoe-bundler>.freeze, ["~> 1.2"])
-      s.add_development_dependency(%q<rspec>.freeze, ["~> 3.0"])
+      s.add_development_dependency(%q<simplecov>.freeze, ["~> 0.12"])
+      s.add_development_dependency(%q<rspec>.freeze, ["~> 3.5"])
       s.add_development_dependency(%q<rdoc>.freeze, ["~> 4.0"])
       s.add_development_dependency(%q<hoe>.freeze, ["~> 3.15"])
     else
@@ -40,9 +39,8 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<hoe-mercurial>.freeze, ["~> 1.4"])
       s.add_dependency(%q<hoe-deveiate>.freeze, ["~> 0.8"])
       s.add_dependency(%q<hoe-highline>.freeze, ["~> 0.2"])
-      s.add_dependency(%q<simplecov>.freeze, ["~> 0.8"])
-      s.add_dependency(%q<hoe-bundler>.freeze, ["~> 1.2"])
-      s.add_dependency(%q<rspec>.freeze, ["~> 3.0"])
+      s.add_dependency(%q<simplecov>.freeze, ["~> 0.12"])
+      s.add_dependency(%q<rspec>.freeze, ["~> 3.5"])
       s.add_dependency(%q<rdoc>.freeze, ["~> 4.0"])
       s.add_dependency(%q<hoe>.freeze, ["~> 3.15"])
     end
@@ -51,9 +49,8 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<hoe-mercurial>.freeze, ["~> 1.4"])
     s.add_dependency(%q<hoe-deveiate>.freeze, ["~> 0.8"])
     s.add_dependency(%q<hoe-highline>.freeze, ["~> 0.2"])
-    s.add_dependency(%q<simplecov>.freeze, ["~> 0.8"])
-    s.add_dependency(%q<hoe-bundler>.freeze, ["~> 1.2"])
-    s.add_dependency(%q<rspec>.freeze, ["~> 3.0"])
+    s.add_dependency(%q<simplecov>.freeze, ["~> 0.12"])
+    s.add_dependency(%q<rspec>.freeze, ["~> 3.5"])
     s.add_dependency(%q<rdoc>.freeze, ["~> 4.0"])
     s.add_dependency(%q<hoe>.freeze, ["~> 3.15"])
   end

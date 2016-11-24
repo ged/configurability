@@ -1,8 +1,8 @@
 ChangeLog
-History.rdoc
+History.md
 LICENSE
 Manifest.txt
-README.rdoc
+README.md
 Rakefile
 bin/configurability
 examples/basicconfig.rb
