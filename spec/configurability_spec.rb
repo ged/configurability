@@ -141,10 +141,7 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		config = double( "configuration object" )
-		expect( config ).to receive( :respond_to? ).with( :testconfig ).and_return( false )
-		expect( config ).to receive( :respond_to? ).with( :[] ).and_return( false )
-
+		config = Object.new
 		expect( klass ).to receive( :configure ).with( nil )
 
 		Configurability.configure_objects( config )
@@ -157,15 +154,7 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		config = double( "configuration object" )
-		expect( config ).to receive( :respond_to? ).with( :testconfig ).and_return( false )
-		expect( config ).to receive( :respond_to? ).with( :key? ).and_return( true )
-		expect( config ).to receive( :respond_to? ).with( :[] ).and_return( true )
-		expect( config ).to receive( :key? ).with( :testconfig ).and_return( false )
-		expect( config ).to receive( :key? ).with( 'testconfig' ).and_return( true )
-		expect( config ).to receive( :[] ).with( :testconfig ).and_return( nil )
-		expect( config ).to receive( :[] ).with( 'testconfig' ).and_return( :a_config_section )
-
+		config = { 'testconfig' => :a_config_section }
 		expect( klass ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
@@ -178,11 +167,9 @@ describe Configurability do
 			config_key :testconfig
 		end
 
-		config = double( "configuration object" )
-		expect( config ).to receive( :respond_to? ).with( :testconfig ).and_return( true )
-		expect( config ).to receive( :testconfig ).and_return( :a_config_section )
-
+		config = OpenStruct.new( testconfig: :a_config_section )
 		expect( klass ).to receive( :configure ).with( :a_config_section )
+
 		Configurability.configure_objects( config )
 	end
 
@@ -192,10 +179,7 @@ describe Configurability do
 		object.extend( Configurability )
 		object.config_key = :testobjconfig
 
-		config = double( "configuration object" )
-		expect( config ).to receive( :respond_to? ).with( :testobjconfig ).and_return( true )
-		expect( config ).to receive( :testobjconfig ).and_return( :a_config_section )
-
+		config = OpenStruct.new( testobjconfig: :a_config_section )
 		expect( object ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
@@ -211,12 +195,7 @@ describe Configurability do
 			config_key :subconfig
 		end
 
-		config = double( "configuration object" )
-		expect( config ).to receive( :respond_to? ).with( :testconfig ).and_return( true )
-		expect( config ).to receive( :testconfig ).and_return( :a_config_section )
-		expect( config ).to receive( :respond_to? ).with( :subconfig ).and_return( true )
-		expect( config ).to receive( :subconfig ).and_return( :a_sub_config_section )
-
+		config = OpenStruct.new( testconfig: :a_config_section, subconfig: :a_sub_config_section )
 		expect( subclass ).to receive( :configure ).with( :a_sub_config_section )
 
 		Configurability.configure_objects( config )
@@ -229,10 +208,7 @@ describe Configurability do
 		def object.name; "testobjconfig"; end
 		object.extend( Configurability )
 
-		config = double( "configuration object" )
-		expect( config ).to receive( :respond_to? ).with( :testobjconfig ).and_return( true )
-		expect( config ).to receive( :testobjconfig ).and_return( :a_config_section )
-
+		config = OpenStruct.new( testobjconfig: :a_config_section )
 		expect( object ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
@@ -244,10 +220,7 @@ describe Configurability do
 		def object.name; "Test Obj-Config"; end
 		object.extend( Configurability )
 
-		config = double( "configuration object" )
-		expect( config ).to receive( :respond_to? ).with( :test_obj_config ).and_return( true )
-		expect( config ).to receive( :test_obj_config ).and_return( :a_config_section )
-
+		config = OpenStruct.new( test_obj_config: :a_config_section )
 		expect( object ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
@@ -259,10 +232,7 @@ describe Configurability do
 		object = Object.new
 		object.extend( Configurability )
 
-		config = double( "configuration object" )
-		expect( config ).to receive( :respond_to? ).with( :object ).and_return( true )
-		expect( config ).to receive( :object ).and_return( :a_config_section )
-
+		config = OpenStruct.new( object: :a_config_section )
 		expect( object ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
@@ -276,10 +246,7 @@ describe Configurability do
 			end
 		end
 
-		config = double( "configuration object" )
-		expect( config ).to receive( :respond_to? ).with( :dbobject ).and_return( true )
-		expect( config ).to receive( :dbobject ).and_return( :a_config_section )
-
+		config = OpenStruct.new( dbobject: :a_config_section )
 		expect( My::DbObject ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
@@ -292,10 +259,7 @@ describe Configurability do
 		object = objectclass.new
 		object.extend( Configurability )
 
-		config = double( "configuration object" )
-		expect( config ).to receive( :respond_to? ).with( :anonymous ).and_return( true )
-		expect( config ).to receive( :anonymous ).and_return( :a_config_section )
-
+		config = OpenStruct.new( anonymous: :a_config_section )
 		expect( object ).to receive( :configure ).with( :a_config_section )
 
 		Configurability.configure_objects( config )
