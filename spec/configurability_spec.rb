@@ -453,6 +453,183 @@ describe Configurability do
 			expect( config.spanishconfig.uno ).to eq( 1 )
 		end
 
+
+		it "responds with the provided result if the object with Configurabilty has no defaults" do
+			klass = Class.new do
+				extend Configurability
+				config_key :testconfig
+			end
+
+			expect( klass.defaults({}) ).to eq( {} )
+		end
+
+	end
+
+
+	describe "default configure method" do
+
+		let!( :configurable_class ) do
+			Class.new do
+				include Configurability
+				config_key :testconfig
+				class << self
+					attr_accessor :apikey, :environment
+				end
+			end
+		end
+
+
+		it "sets attributes of the configured object that correspond with the keys of the config" do
+			config = OpenStruct.new( apikey: 'the-api-key', environment: 'production' )
+
+			configurable_class.configure( config )
+
+			expect( configurable_class.apikey ).to eq( 'the-api-key' )
+			expect( configurable_class.environment ).to eq( 'production' )
+		end
+
+
+		it "merges in defaults if they exist" do
+			configurable_class::DEFAULT_CONFIG = { environment: 'development' }
+			config = OpenStruct.new( apikey: 'the-api-key' )
+
+			configurable_class.configure( config )
+
+			expect( configurable_class.apikey ).to eq( 'the-api-key' )
+			expect( configurable_class.environment ).to eq( 'development' )
+		end
+
+
+		it "merges in defaults even if configured with `nil`" do
+			configurable_class::DEFAULT_CONFIG = { environment: 'development' }
+
+			configurable_class.configure
+
+			expect( configurable_class.apikey ).to eq( nil )
+			expect( configurable_class.environment ).to eq( 'development' )
+		end
+
+
+		it "returns the merged config for overrides" do
+			configurable_class::DEFAULT_CONFIG = { environment: 'development' }
+
+			rval = configurable_class.configure( apikey: 'the-api-key' )
+
+			expect( rval[:apikey] ).to eq( 'the-api-key' )
+			expect( rval[:environment] ).to eq( 'development' )
+		end
+
+	end
+
+
+	describe "configuration DSL" do
+
+		let( :mod ) do
+			mod = Module.new
+			mod.extend( Configurability )
+			mod
+		end
+
+		let( :instance ) do
+			instance = Object.new
+			instance.extend( Configurability )
+			instance
+		end
+
+
+		it "just sets the config key if called with a name" do
+			mod.configurability( :testconfig )
+			expect( mod.config_key ).to eq( :testconfig )
+		end
+
+
+		it "allows the declaration of one or more config options" do
+			mod.configurability( :testconfig ) do
+				setting :environment
+				setting :apikey
+			end
+
+			expect {
+				mod.environment = 'development'
+			}.to change { mod.environment }.to( 'development' )
+			expect {
+				mod.apikey = 'jofRtkw&QzCoukGwAWDMjyTkQzWnCXhhgEs'
+			}.to change { mod.apikey }.to( 'jofRtkw&QzCoukGwAWDMjyTkQzWnCXhhgEs' )
+		end
+
+
+		it "works for object instances with Configurability as well" do
+			instance.configurability( :testconfig ) do
+				setting :environment
+				setting :apikey
+			end
+
+			expect {
+				instance.environment = 'development'
+			}.to change { instance.environment }.to( 'development' )
+			expect {
+				instance.apikey = 'jofRtkw&QzCoukGwAWDMjyTkQzWnCXhhgEs'
+			}.to change { instance.apikey }.to( 'jofRtkw&QzCoukGwAWDMjyTkQzWnCXhhgEs' )
+		end
+
+
+		it "allow the declaration of one or more config options with an inferred config key" do
+			mod.configurability do
+				setting :environment
+				setting :apikey
+			end
+
+			expect {
+				mod.environment = 'development'
+			}.to change { mod.environment }.to( 'development' )
+			expect {
+				mod.apikey = 'jofRtkw&QzCoukGwAWDMjyTkQzWnCXhhgEs'
+			}.to change { mod.apikey }.to( 'jofRtkw&QzCoukGwAWDMjyTkQzWnCXhhgEs' )
+		end
+
+
+		it "allow the declaration of one or more config options with defaults" do
+			mod.configurability( :testconfig ) do
+				setting :environment, default: 'development'
+				setting :apikey, default: '<none set>'
+			end
+
+			expect {
+				mod.environment = 'production'
+			}.to change { mod.environment }.
+				from( 'development' ).
+				to( 'production' )
+
+			expect {
+				mod.apikey = 'jofRtkw&QzCoukGwAWDMjyTkQzWnCXhhgEs'
+			}.to change { mod.apikey }.
+				from( '<none set>' ).
+				to( 'jofRtkw&QzCoukGwAWDMjyTkQzWnCXhhgEs' )
+
+			expect( mod.defaults ).to include(
+				environment: 'development',
+				apikey: '<none set>'
+			)
+		end
+
+
+		it "installs the current config after its done if it's already been loaded" do
+			config = OpenStruct.new( testconfig: {
+				environment: 'production',
+				apikey: 'jofRtkw&QzCoukGwAWDMjyTkQzWnCXhhgEs'
+			})
+
+			Configurability.configure_objects( config )
+
+			mod.configurability( :testconfig ) do
+				setting :environment, default: 'development'
+				setting :apikey, default: '<none set>'
+			end
+
+			expect( mod.environment ).to eq( 'production' )
+			expect( mod.apikey ).to eq( 'jofRtkw&QzCoukGwAWDMjyTkQzWnCXhhgEs' )
+		end
+
 	end
 
 end

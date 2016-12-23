@@ -23,3 +23,5 @@ branding:
   header: "#333"
   title: "#dedede"
   anchor: "#9fc8d4"
+users:
+  min_password_length: 12

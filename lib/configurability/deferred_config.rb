@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby -wKU
 
-require 'configurability'
+require 'configurability' unless defined?( Configurability )
 
 
 # Mixin that can be applied to classes to cause them to configure themselves

@@ -4,10 +4,15 @@ windowTitle          = "${CWD/^.*\///} «$TM_DISPLAYNAME»"
 excludeInFileChooser = "{$exclude,.hg}"
 
 [ source.ruby ]
-softTabs         = false
-tabSize          = 4
+softTabs = false
+tabSize  = 4
 
 [ source.ruby.rspec ]
-softTabs         = false
-tabSize          = 4
+softTabs = false
+tabSize  = 4
+
+[ text ]
+softTabs = true
+tabSize = 2
+wrapColumn = 80
 
