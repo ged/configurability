@@ -1,15 +1,15 @@
 # -*- encoding: utf-8 -*-
-# stub: configurability 3.1.0.pre20161123172826 ruby lib
+# stub: configurability 3.1.0.pre20161130162622 ruby lib
 
 Gem::Specification.new do |s|
   s.name = "configurability".freeze
-  s.version = "3.1.0.pre20161123172826"
+  s.version = "3.1.0.pre20161130162622"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
   s.authors = ["Michael Granger".freeze, "Mahlon E. Smith".freeze]
   s.cert_chain = ["certs/ged.pem".freeze]
-  s.date = "2016-11-24"
+  s.date = "2016-12-01"
   s.description = "Configurability is a unified, unintrusive, assume-nothing configuration system\nfor Ruby. It lets you keep the configuration for multiple objects in a single\nconfig file, load the file when it's convenient for you, and distribute the\nconfiguration when you're ready, sending it everywhere it needs to go with a\nsingle action.".freeze
   s.email = ["ged@FaerieMUD.org".freeze, "mahlon@martini.nu".freeze]
   s.executables = ["configurability".freeze]

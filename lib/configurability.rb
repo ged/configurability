@@ -3,12 +3,7 @@
 require 'loggability'
 require 'yaml'
 
-# A configuration mixin for Ruby classes.
-#
-# == Author/s
-#
-# * Michael Granger <ged@FaerieMUD.org>
-#
+# A unified, unintrusive, assume-nothing configuration system for Ruby
 module Configurability
 	extend Loggability
 
@@ -23,9 +18,10 @@ module Configurability
 	# Version-control revision constant
 	REVISION = %q$Revision$
 
-	require 'configurability/deferredconfig'
+	require 'configurability/deferred_config'
 
 	autoload :Config, 'configurability/config'
+	autoload :SettingInstaller, 'configurability/setting_installer'
 
 
 	### The objects that have had Configurability added to them
@@ -34,10 +30,6 @@ module Configurability
 	### The loaded config (if there is one)
 	@loaded_config = nil
 
-	### The hash of configuration calls that have already taken place -- the keys are
-	### Method objects for the configure methods of the configured objects, and the values
-	### are the config section it was called with
-	@configured = Hash.new( false )
 
 	class << self
 
@@ -46,9 +38,6 @@ module Configurability
 
 		# the loaded configuration (after ::configure_objects has been called at least once)
 		attr_accessor :loaded_config
-
-		# the hash of configure methods => config sections which have already been installed
-		attr_reader :configured
 
 	end
 
@@ -120,7 +109,6 @@ module Configurability
 	### If a configuration has been loaded (via {#configure_objects}), clear it.
 	def self::reset
 		self.loaded_config = nil
-		self.configured.clear
 	end
 
 
@@ -204,6 +192,12 @@ module Configurability
 	end
 
 
+	### Return the specified +key+ normalized into a valid Symbol config key.
+	def self::normalize_config_key( key )
+		return key.to_s.gsub( /\./, '__' ).to_sym
+	end
+
+
 	### Gather the default configuration in a Configurability::Config object and return it.
 	def self::default_config
 		return self.gather_defaults( Configurability::Config.new )
@@ -229,19 +223,82 @@ module Configurability
 	### Set the config key of the object.
 	def config_key=( sym )
 		Configurability.configurable_objects |= [ self ]
-		@config_key = normalize_config_key( sym )
+		@config_key = Configurability.normalize_config_key( sym )
 	end
 
 
-	### Default configuration method.
-	def configure( config )
+	### Default configuration method. This will merge the provided +config+ with the defaults
+	### if there are any and the +config+ responds to <tt>#to_h</tt>. If the +config+ responds to
+	### <tt>#each_pair</tt>, any writable attributes of the calling object with the same name
+	### as a key of the +config+ will be called with the corresponding value. E.g.,
+	###
+	###   class MyClass
+	###       extend Configurability
+	###       CONFIG_DEFAULTS = { environment: 'develop', apikey: 'testing-key' }
+	###       config_key :my_class
+	###       class << self
+	###           attr_accessor :environment, :apikey
+	###       end
+	###   end
+	###
+	###   config = { my_class: {apikey: 'demo-key'} }
+	###   Configurability.configure_objects( config )
+	###
+	###   MyClass.apikey
+	###   # => 'demo-key'
+	###   MyClass.environment
+	###   # => 'develop'
+	###
+	def configure( config=nil )
+		config = self.defaults( {} ).merge( config.to_h || {} ) if
+			config.nil? || config.respond_to?( :to_h )
+
 		@config = config
+
+		if @config.respond_to?( :each_pair )
+			@config.each_pair do |key, value|
+				Configurability.log.debug "Looking for %p config attribute" % [ key ]
+				next unless self.respond_to?( "#{key}=" )
+				Configurability.log.debug "  setting %p to %p via attr_writer" %
+					[ key, value ]
+				self.public_send( "#{key}=", value )
+			end
+		else
+			Configurability.log.
+				debug "config object (%p) isn't iterable; skipping config attributes" % [ @config ]
+		end
+
+		return @config
 	end
 
 
-	### Return the specified +key+ normalized into a valid Symbol config key.
-	def normalize_config_key( key )
-		return key.to_s.gsub( /\./, '__' ).to_sym
+	#
+	# :section: Configuration settings block
+	#
+
+	### Declare configuration settings and defaults. In the provided +block+, you can create
+	### a configuration setting using the following syntax:
+	###
+	###   configurability( :my_config_key ) do
+	###       # Declare a setting with a `nil` default
+	###       setting :a_config_key
+	###       # Declare one with a default value
+	###       setting :another_config_key, default: 18
+	###   end
+	###
+	def configurability( config_key=nil, &block )
+		self.config_key = config_key if config_key
+
+		if block
+			Configurability.log.debug "Applying config declaration block using a SettingInstaller"
+			installer = Configurability::SettingInstaller.new( self )
+			installer.instance_eval( &block )
+		end
+
+		if (( config = Configurability.loaded_config ))
+			Configurability.install_config( config, self )
+		end
+
 	end
 
 
@@ -252,10 +309,10 @@ module Configurability
 	### The default implementation of the method called by ::gather_defaults when
 	### gathering configuration defaults. This method expects either a
 	### +DEFAULT_CONFIG+ or a +CONFIG_DEFAULTS+ constant to contain the configuration
-	### defaults, and will just return +nil+ if neither exists.
-	def defaults
+	### defaults, and will just return the +fallback+ value if neither exists. 
+	def defaults( fallback=nil )
 
-		return nil unless respond_to?( :const_defined? )
+		return fallback unless respond_to?( :const_defined? )
 
 		Configurability.log.debug "Looking for defaults in %p's constants." % [ self ]
 		if self.const_defined?( :DEFAULT_CONFIG, false )
@@ -266,7 +323,7 @@ module Configurability
 			return self.const_get( :CONFIG_DEFAULTS, false ).dup
 		else
 			Configurability.log.debug "  no default constants."
-			return nil
+			return fallback
 		end
 	end
 

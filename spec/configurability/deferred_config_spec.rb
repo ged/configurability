@@ -8,7 +8,7 @@ require 'fileutils'
 require 'rspec'
 
 require 'configurability'
-require 'configurability/deferredconfig'
+require 'configurability/deferred_config'
 
 
 #####################################################################
