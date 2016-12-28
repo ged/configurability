@@ -2,7 +2,9 @@
 
 Enhancement:
 
-- Add hierarchical config keys.
+- Add hierarchical config keys
+- Add a DSL for setting up settings and defaults
+- Add a better default #configure method
 
 
 == v2.2.2 [2016-09-28] Michael Granger <ged@FaerieMUD.org>
