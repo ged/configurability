@@ -309,7 +309,7 @@ module Configurability
 	### The default implementation of the method called by ::gather_defaults when
 	### gathering configuration defaults. This method expects either a
 	### +DEFAULT_CONFIG+ or a +CONFIG_DEFAULTS+ constant to contain the configuration
-	### defaults, and will just return the +fallback+ value if neither exists. 
+	### defaults, and will just return the +fallback+ value if neither exists.
 	def defaults( fallback=nil )
 
 		return fallback unless respond_to?( :const_defined? )

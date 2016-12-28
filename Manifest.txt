@@ -7,6 +7,7 @@ Rakefile
 bin/configurability
 examples/basicconfig.rb
 examples/config.yml
+examples/readme.rb
 lib/configurability.rb
 lib/configurability/behavior.rb
 lib/configurability/config.rb
