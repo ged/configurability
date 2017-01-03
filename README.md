@@ -74,6 +74,9 @@ some settings:
             setting :url, default: 'sqlite:/'
             setting :user
             setting :password
+            setting :port do |value|
+                Integer( value )
+            end
         end
     end
 
@@ -81,6 +84,8 @@ This sets up the class to use the `db` config key, and adds attributes for the
 three subkey settings under it (with getters and setters) to the class. It also
 adds a `configure` class method that will set whichever of the settings are
 passed to it, defaulting the `url` to the provided value if it's not given.
+
+The `setting` can include a block which is given the config value before it's set; from this block you can do validity-checking, cast it to something other than a String, etc. The new value will be set to the return value of the block.
 
 If your config file (e.g., `config.yml`) looks like this:
 
