@@ -31,7 +31,7 @@ hoespec = Hoe.spec 'configurability' do |spec|
 	spec.developer 'Michael Granger', 'ged@FaerieMUD.org'
 	spec.developer 'Mahlon E. Smith', 'mahlon@martini.nu'
 
-	spec.dependency 'loggability', '~> 0.11'
+	spec.dependency 'loggability', '~> 0.12'
 
 	spec.dependency 'hoe-deveiate', '~> 0.8', :developer
 	spec.dependency 'simplecov', '~> 0.12', :developer
