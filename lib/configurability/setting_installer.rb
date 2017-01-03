@@ -26,9 +26,9 @@ class Configurability::SettingInstaller
 
 
 	### Declare a config setting with the specified +name+.
-	def setting( name, **options )
+	def setting( name, **options, &block )
 		self.log.debug "  adding %s setting to %p" % [ name, self.target ]
-		self.add_setting_accessors( name, options )
+		self.add_setting_accessors( name, options, &block )
 		self.add_default( name, options )
 	end
 
@@ -38,9 +38,12 @@ class Configurability::SettingInstaller
 	#########
 
 	### Add accessors with the specified +name+ to the target.
-	def add_setting_accessors( name, options )
+	def add_setting_accessors( name, options, &writer_hook )
 		reader = lambda { self.instance_variable_get("@#{name}") }
-		writer = lambda {|value| self.instance_variable_set("@#{name}", value) }
+		writer = lambda do |value|
+			value = writer_hook[ value ] if writer_hook
+			self.instance_variable_set( "@#{name}", value )
+		end
 
 		self.target.define_singleton_method( "#{name}", &reader )
 		self.target.define_singleton_method( "#{name}=", &writer )

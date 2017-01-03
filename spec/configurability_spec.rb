@@ -630,6 +630,26 @@ describe Configurability do
 			expect( mod.apikey ).to eq( 'jofRtkw&QzCoukGwAWDMjyTkQzWnCXhhgEs' )
 		end
 
+
+		it "can declare settings with a block to do writer pre-processing" do
+			mod.configurability( :testconfig ) do
+				setting :data_dir do |dir|
+					Pathname( dir )
+				end
+				setting :apikey do |key|
+					raise "Invalid API key!" unless key.to_s =~ /\A\p{Xdigit}{32}\z/
+					key
+				end
+			end
+
+			expect {
+				mod.data_dir = 'var/data'
+			}.to change { mod.data_dir }.to( Pathname('var/data') )
+			expect {
+				mod.apikey = 'something'
+			}.to raise_error( /Invalid API key/i )
+		end
+
 	end
 
 end
