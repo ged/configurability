@@ -1,3 +1,10 @@
+## v3.1.1 [2017-01-03] Michael Granger <ged@FaerieMUD.org>
+
+Bugfix:
+
+- Fix inheritance of defaults when declared using settings
+
+
 ## v3.1.0 [2017-01-03] Michael Granger <ged@FaerieMUD.org>
 
 Enhancement:
