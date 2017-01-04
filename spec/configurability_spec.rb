@@ -650,6 +650,28 @@ describe Configurability do
 			}.to raise_error( /Invalid API key/i )
 		end
 
+
+		it "supports inheritance of defaults" do
+			parent_class = Class.new
+			parent_class.extend( Configurability )
+			parent_class.configurability( :testconfig ) do
+				setting :environment, default: :production
+			end
+
+			child_class = Class.new( parent_class )
+			child_class..extend( Configurability )
+			child_class.configurability( :testconfig ) do
+				setting :environment, default: :staging
+				setting :apikey, default: 'foom'
+			end
+
+			expect( parent_class.defaults ).to contain_exactly([ :environment, :production ])
+			expect( child_class.defaults ).to contain_exactly(
+				[:environment, :staging],
+				[:apikey, 'foom']
+			)
+		end
+
 	end
 
 end

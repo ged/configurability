@@ -57,8 +57,8 @@ class Configurability::SettingInstaller
 
 		self.target.instance_variable_set( "@#{name}", default_value )
 		if self.target.respond_to?( :const_defined? )
-			defaults = if self.target.const_defined?( :CONFIG_DEFAULTS )
-					self.target.const_get( :CONFIG_DEFAULTS )
+			defaults = if self.target.const_defined?( :CONFIG_DEFAULTS, false )
+					self.target.const_get( :CONFIG_DEFAULTS, false )
 				else
 					self.target.const_set( :CONFIG_DEFAULTS, {} )
 				end
