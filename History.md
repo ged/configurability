@@ -1,3 +1,10 @@
+## v3.1.2 [2017-01-16] Michael Granger <ged@FaerieMUD.org>
+
+Bugfix:
+
+- Always use the pre-processor block for defaults.
+
+
 ## v3.1.1 [2017-01-03] Michael Granger <ged@FaerieMUD.org>
 
 Bugfix:
