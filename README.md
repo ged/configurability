@@ -75,7 +75,7 @@ some settings:
             setting :user
             setting :password
             setting :port do |value|
-                Integer( value )
+                Integer( value ) if value
             end
         end
     end
@@ -85,7 +85,12 @@ three subkey settings under it (with getters and setters) to the class. It also
 adds a `configure` class method that will set whichever of the settings are
 passed to it, defaulting the `url` to the provided value if it's not given.
 
-The `setting` can include a block which is given the config value before it's set; from this block you can do validity-checking, cast it to something other than a String, etc. The new value will be set to the return value of the block.
+The `setting` can include a block which is given the config value before it's
+set; from this block you can do validity-checking, cast it to something other
+than a String, etc. The new value will be set to the return value of the block.
+Note that this will be called with the default for the setting when it's
+declared, so the block should be able to handle the default (even if it's
+`nil`).
 
 If your config file (e.g., `config.yml`) looks like this:
 
