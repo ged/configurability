@@ -613,7 +613,7 @@ describe Configurability do
 		end
 
 
-		it "installs the current config after its done if it's already been loaded" do
+		it "installs the current config after it's done if it's already loaded" do
 			config = OpenStruct.new( testconfig: {
 				environment: 'production',
 				apikey: 'jofRtkw&QzCoukGwAWDMjyTkQzWnCXhhgEs'
@@ -633,11 +633,11 @@ describe Configurability do
 
 		it "can declare settings with a block to do writer pre-processing" do
 			mod.configurability( :testconfig ) do
-				setting :data_dir do |dir|
+				setting :data_dir, default: '/tmp/data' do |dir|
 					Pathname( dir )
 				end
 				setting :apikey do |key|
-					raise "Invalid API key!" unless key.to_s =~ /\A\p{Xdigit}{32}\z/
+					raise "Invalid API key!" unless key.nil? || key.to_s =~ /\A\p{Xdigit}{32}\z/
 					key
 				end
 			end
@@ -648,6 +648,17 @@ describe Configurability do
 			expect {
 				mod.apikey = 'something'
 			}.to raise_error( /Invalid API key/i )
+		end
+
+
+		it "uses the setting block for setting up the initial defaults" do
+			mod.configurability( :testconfig ) do
+				setting :data_dir, default: 'this/that' do |dir|
+					Pathname( dir )
+				end
+			end
+
+			expect( mod.data_dir ).to be_a( Pathname )
 		end
 
 
@@ -671,6 +682,7 @@ describe Configurability do
 				[:apikey, 'foom']
 			)
 		end
+
 
 	end
 
