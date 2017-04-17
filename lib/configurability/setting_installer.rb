@@ -39,14 +39,43 @@ class Configurability::SettingInstaller
 
 	### Add accessors with the specified +name+ to the target.
 	def add_setting_accessors( name, options, &writer_hook )
-		reader = lambda { self.instance_variable_get("@#{name}") }
-		writer = lambda do |value|
-			value = writer_hook[ value ] if writer_hook
-			self.instance_variable_set( "@#{name}", value )
-		end
+		reader = self.make_setting_reader( name, options )
+		writer = self.make_setting_writer( name, options, &writer_hook )
 
 		self.target.define_singleton_method( "#{name}", &reader )
 		self.target.define_singleton_method( "#{name}=", &writer )
+	end
+
+
+	### Create the body of the setting reader method with the specified +name+ and +options+.
+	def make_setting_reader( name, options )
+		if options[:use_class_vars]
+			return lambda do
+				Loggability[ Configurability ].debug "Using class variables for %s of %p" %
+					[ name, self ]
+				self.class_variable_get("@@#{name}")
+			end
+		else
+			return lambda { self.instance_variable_get("@#{name}") }
+		end
+	end
+
+
+	### Create the body of the setting writer method with the specified +name+ and +options+.
+	def make_setting_writer( name, options, &writer_hook )
+		if options[:use_class_vars]
+			return lambda do |value|
+				Loggability[ Configurability ].debug "Using class variables for %s of %p" %
+					[ name, self ]
+				value = writer_hook[ value ] if writer_hook
+				self.class_variable_set( "@@#{name}", value )
+			end
+		else
+			return lambda do |value|
+				value = writer_hook[ value ] if writer_hook
+				self.instance_variable_set( "@#{name}", value )
+			end
+		end
 	end
 
 
