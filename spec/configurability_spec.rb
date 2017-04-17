@@ -684,6 +684,27 @@ describe Configurability do
 		end
 
 
+		it "allows the use of class variables instead of class-instance variables for settings on a Class" do
+			superclass = Class.new
+			superclass.extend( Configurability )
+			superclass.configurability( :plugin ) do
+				setting :api_key, default: 'service_api_key', use_class_vars: true
+				setting :environment, default: 'development'
+			end
+
+			subclass = Class.new( superclass )
+
+			expect {
+				superclass.api_key = 'QzCoukGwAWDMjyTkQzWnCXhhgEs'
+			}.to change { subclass.api_key }.
+				from( 'service_api_key' ).
+				to( 'QzCoukGwAWDMjyTkQzWnCXhhgEs' )
+			expect {
+				superclass.environment = 'production'
+			}.to_not change { subclass.environment }.
+				from( nil )
+		end
+
 	end
 
 end
