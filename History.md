@@ -1,3 +1,15 @@
+## v3.2.0 [2017-04-17] Michael Granger <ged@FaerieMUD.org>
+
+Enhancements:
+
+- Add an option to use class variables for settings instead of class-instance variables.
+
+Bugfixes:
+
+- Update the README to point out that the setting block needs to
+  handle the default value.
+
+
 ## v3.1.2 [2017-01-16] Michael Granger <ged@FaerieMUD.org>
 
 Bugfix:
