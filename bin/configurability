@@ -289,6 +289,13 @@ class Configurability::Command
 	help :version, "Prints the Configurability version."
 
 
+	### The 'defaults' command
+	def defaults_command( *args )
+		$stdout.puts Configurability.default_config.dump
+	end
+	help :defaults, "Display configuration defaults for loaded libraries"
+
+
 	#
 	# Helper methods
 	#
