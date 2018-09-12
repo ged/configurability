@@ -255,7 +255,7 @@ describe Configurability::Config do
 	# loading from a file
 	context " loaded from a file" do
 		before( :all ) do
-			filename = Dir::Tmpname.make_tmpname( './test', '.conf' )
+			filename = Dir::Tmpname.create( ['./test', '.conf'] ) {}
 			@tmpfile = Pathname( filename )
 			@tmpfile.open( 'w', 0644 ) {|io| io.print(TEST_CONFIG) }
 		end
@@ -284,7 +284,7 @@ describe Configurability::Config do
 
 		it "can be written to a different file" do
 			begin
-			path = Dir::Tmpname.make_tmpname( './another-', '.config' )
+			path = Dir::Tmpname.create( ['./another-', '.config'] ) {}
 
 				config.write( path )
 				expect( File.read(path) ).to match( /section: ?\n  subsection/ )
@@ -333,7 +333,7 @@ describe Configurability::Config do
 	context " whose file changes after loading" do
 
 		before( :all ) do
-			filename = Dir::Tmpname.make_tmpname( './test', '.conf' )
+			filename = Dir::Tmpname.create( ['./test', '.conf'] ) {}
 			@tmpfile = Pathname( filename )
 			@tmpfile.open( 'w', 0644 ) {|io| io.print(TEST_CONFIG) }
 		end

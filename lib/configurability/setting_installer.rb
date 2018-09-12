@@ -39,6 +39,12 @@ class Configurability::SettingInstaller
 
 	### Add accessors with the specified +name+ to the target.
 	def add_setting_accessors( name, options, &writer_hook )
+		if options[:use_class_vars]
+			self.target.class_variable_set( "@@#{name}", nil )
+		else
+			self.target.instance_variable_set( "@#{name}", nil )
+		end
+
 		reader = self.make_setting_reader( name, options )
 		writer = self.make_setting_writer( name, options, &writer_hook )
 
@@ -56,7 +62,9 @@ class Configurability::SettingInstaller
 				self.class_variable_get("@@#{name}")
 			end
 		else
-			return lambda { self.instance_variable_get("@#{name}") }
+			return lambda {
+				self.instance_variable_get("@#{name}")
+			}
 		end
 	end
 
