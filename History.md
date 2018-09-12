@@ -1,3 +1,11 @@
+## v3.3.0 [2018-09-12] Michael Granger <ged@FaerieMUD.org>
+
+Enhancements:
+
+- Declare the class/class-instance variable when declaring a setting
+- Add a 'defaults' subcommand to the configurability executable
+
+
 ## v3.2.0 [2017-04-17] Michael Granger <ged@FaerieMUD.org>
 
 Enhancements:
