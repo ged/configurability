@@ -84,7 +84,7 @@ class Configurability::Config
 
 		# Make a deep copy of the defaults before loading so we don't modify
 		# the argument
-		@defaults     = Marshal.load( Marshal.dump(defaults) ) if defaults
+		@defaults     = defaults ? Marshal.load( Marshal.dump(defaults) ) : nil
 		@time_created = Time.now
 		@path         = path
 

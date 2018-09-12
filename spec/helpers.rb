@@ -35,6 +35,8 @@ RSpec.configure do |config|
 	config.mock_with( :rspec ) do |mock|
 		mock.syntax = :expect
 	end
+	config.warnings = true
+	config.profile_examples = 5
 
 	config.include( Loggability::SpecHelpers )
 end

@@ -404,21 +404,22 @@ describe Configurability do
 			defaults = Configurability.gather_defaults
 
 			expect( defaults ).to eq({ testconfig: { sect1: {sect2: { one: 1, two: 2 }} } })
+			expect( klass.config_key ).to eq( :testconfig__sect1__sect2 )
 		end
 
 
 		it "can return a Configurability::Config object with defaults, too" do
-			klass1 = Class.new do
+			_klass1 = Class.new do
 				extend Configurability
 				config_key :testconfig
 				self::CONFIG_DEFAULTS = { :one => 1, :types => {:one => true} }
 			end
-			klass2 = Class.new do
+			_klass2 = Class.new do
 				extend Configurability
 				config_key :testconfig
 				self::DEFAULT_CONFIG = { :two => 2, :types => {:two => true} }
 			end
-			klass3 = Class.new do
+			_klass3 = Class.new do
 				extend Configurability
 				config_key :otherconfig
 				def self::defaults; { :other => true }; end
@@ -442,7 +443,7 @@ describe Configurability do
 				self::CONFIG_DEFAULTS = { :one => 1, :types => {:one => true} }
 				Configurability.log.debug "Defaults: %p" % [ self.defaults ]
 			end
-			subclass = Class.new( klass ) do
+			_subclass = Class.new( klass ) do
 				config_key :spanishconfig
 				self::CONFIG_DEFAULTS = { :uno => 1 }
 			end
@@ -670,7 +671,6 @@ describe Configurability do
 			end
 
 			child_class = Class.new( parent_class )
-			child_class..extend( Configurability )
 			child_class.configurability( :testconfig ) do
 				setting :environment, default: :staging
 				setting :apikey, default: 'foom'
