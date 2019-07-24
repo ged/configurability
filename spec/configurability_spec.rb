@@ -17,11 +17,13 @@ describe Configurability do
 
 	before( :each ) do
 		Configurability.configurable_objects.clear
+		Configurability.after_configure_hooks.clear
 		Configurability.reset
 	end
 
 	after( :all ) do
 		Configurability.configurable_objects.clear
+		Configurability.after_configure_hooks.clear
 		Configurability.reset
 	end
 
@@ -704,6 +706,48 @@ describe Configurability do
 			}.to_not change { subclass.environment }.
 				from( nil )
 		end
+
+	end
+
+
+	describe "hooks" do
+
+		it "will call any registered callbacks after the config is installed" do
+			hook_was_called = false
+			Configurability.after_configure do
+				hook_was_called = true
+			end
+			Configurability.call_after_configure_hooks
+
+			expect( hook_was_called ).to be( true )
+		end
+
+
+		it "will immediately call after_config callbacks registered after the config is installed" do
+			hook_was_called = false
+			Configurability.call_after_configure_hooks
+
+			Configurability.after_configure do
+				hook_was_called = true
+			end
+
+			expect( hook_was_called ).to be( true )
+		end
+
+
+		it "can add new after_configure hooks even while the current ones are being run" do
+			hook_was_called = false
+			Configurability.after_configure do
+				Configurability.after_configure do
+					hook_was_called = true
+				end
+			end
+
+			Configurability.call_after_configure_hooks
+
+			expect( hook_was_called ).to be( true )
+		end
+
 
 	end
 

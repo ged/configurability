@@ -35,7 +35,7 @@ hoespec = Hoe.spec 'configurability' do |spec|
 
 	spec.dependency 'hoe-deveiate', '~> 0.8', :developer
 	spec.dependency 'simplecov', '~> 0.12', :developer
-	spec.dependency 'rspec', '~> 3.5', :developer
+	spec.dependency 'rspec', '~> 3.8', :developer
 
 	spec.require_ruby_version( '>= 2.2.0' )
 

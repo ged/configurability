@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'set'
 require 'loggability'
 require 'yaml'
 
@@ -25,20 +26,58 @@ module Configurability
 
 
 	### The objects that have had Configurability added to them
+	##
+	# the Array of objects that have had Configurability added to them
+	singleton_class.attr_accessor :configurable_objects
 	@configurable_objects = []
 
-	### The loaded config (if there is one)
+	##
+	# the loaded configuration (after ::configure_objects has been called at least once)
+	singleton_class.attr_accessor :loaded_config
 	@loaded_config = nil
 
+	##
+	# An Array of callbacks to be run after the config is loaded
+	@after_configure_hooks = Set.new
+	singleton_class.attr_reader :after_configure_hooks
 
-	class << self
 
-		# the Array of objects that have had Configurability added to them
-		attr_accessor :configurable_objects
+	@after_configure_hooks_run = false
 
-		# the loaded configuration (after ::configure_objects has been called at least once)
-		attr_accessor :loaded_config
+	### Returns +true+ if the after-configuration hooks have run at least once.
+	def self::after_configure_hooks_run?
+		return @after_configure_hooks_run ? true : false
+	end
 
+
+	### Set the flag that indicates that the after-configure hooks have run at least
+	### once.
+	def self::after_configure_hooks_run=( new_value )
+		@after_configure_hooks_run = new_value ? true : false
+	end
+
+
+	### Register a callback to be run after the config is loaded.
+	def self::after_configure( &block )
+		raise LocalJumpError, "no block given" unless block
+		self.after_configure_hooks << block
+
+		# Call the block immediately if the hooks have already been called or are in
+		# the process of being called.
+		block.call if self.after_configure_hooks_run?
+	end
+	singleton_class.alias_method :after_configuration, :after_configure
+
+
+	### Call the post-configuration callbacks.
+	def self::call_after_configure_hooks
+		self.log.debug "  calling %d post-config hooks" % [ self.after_configure_hooks.length ]
+		@after_configure_hooks_run = true
+
+		self.after_configure_hooks.to_a.each do |hook|
+			# self.log.debug "    %s line %s..." % hook.source_location
+			hook.call
+		end
 	end
 
 
@@ -103,12 +142,15 @@ module Configurability
 		self.configurable_objects.each do |obj|
 			self.install_config( config, obj )
 		end
+
+		self.call_after_configure_hooks
 	end
 
 
 	### If a configuration has been loaded (via {#configure_objects}), clear it.
 	def self::reset
 		self.loaded_config = nil
+		self.after_configure_hooks_run = false
 	end
 
 
