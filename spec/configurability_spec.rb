@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'ipaddr'
+require 'socket'
 require 'ostruct'
 require 'helpers'
 
@@ -705,6 +707,29 @@ describe Configurability do
 				superclass.environment = 'production'
 			}.to_not change { subclass.environment }.
 				from( nil )
+		end
+
+
+		it "allows declaration of singleton helper methods" do
+			mod.configurability( :testconfig ) do
+				def self::parse_ip_blocks( *values )
+					values.flatten.map do |value|
+						IPAddr.new( value, Socket::AF_INET )
+					end
+				end
+				setting :whitelisted_ip_blocks do |*values|
+					parse_ip_blocks( values )
+				end
+				setting :blacklisted_ip_blocks do |*values|
+					parse_ip_blocks( values )
+				end
+			end
+
+			expect {
+				mod.whitelisted_ip_blocks = ['127.0.0.1/8', '203.0.113.0/24']
+			}.to change { mod.whitelisted_ip_blocks }.to([
+				IPAddr.new( '127.0.0.0/8' ), IPAddr.new( '203.0.113.0/24' )
+			])
 		end
 
 	end
