@@ -50,6 +50,11 @@ class Configurability::SettingInstaller
 
 		self.target.define_singleton_method( "#{name}", &reader )
 		self.target.define_singleton_method( "#{name}=", &writer )
+
+		if options[:predicate]
+			predicate = self.make_setting_predicate( name, options )
+			self.target.define_singleton_method( "#{name}?", &predicate )
+		end
 	end
 
 
@@ -83,6 +88,22 @@ class Configurability::SettingInstaller
 				value = writer_hook[ value ] if writer_hook
 				self.instance_variable_set( "@#{name}", value )
 			end
+		end
+	end
+
+
+	### Create the body of the setting predicate method with the specified +name+ and +options+.
+	def make_setting_predicate( name, options )
+		if options[:use_class_vars]
+			return lambda do
+				Loggability[ Configurability ].debug "Using class variables for %s of %p" %
+					[ name, self ]
+				self.class_variable_get("@@#{name}") ? true : false
+			end
+		else
+			return lambda {
+				self.instance_variable_get("@#{name}") ? true : false
+			}
 		end
 	end
 

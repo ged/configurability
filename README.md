@@ -92,28 +92,6 @@ Note that this will be called with the default for the setting when it's
 declared, so the block should be able to handle the default (even if it's
 `nil`).
 
-You can also add helper methods inside the `configurability` block to eliminate repeated code in your setting blocks:
-
-    configurability( :server ) do
-    	def self::parse_ip_blocks( *values )
-    		return values.flatten.map do |value|
-    			IPAddr.new( value, Socket::AF_INET )
-    		end
-      rescue => err
-        warn "%p while loading IP blocks: %s" % [ err.class, err.message ]
-        return nil
-    	end
-
-    	setting :whitelisted_ip_blocks do |*values|
-    		parse_ip_blocks( values )
-    	end
-
-    	setting :blacklisted_ip_blocks do |*values|
-    		parse_ip_blocks( values )
-    	end
-    end
-
-
 If your config file (e.g., `config.yml`) looks like this:
 
     --
@@ -138,6 +116,42 @@ After this happens you can access the configuration values like this:
     # => "tim"
     Database.password
     # => "pXVvVY,YjWNRRi[yPWx4"
+
+You can add helper methods inside the `configurability` block to eliminate
+repeated code in your setting blocks:
+
+    configurability( :server ) do
+      def self::make_path( value )
+        return nil unless value
+        pn = Pathname( value )
+        raise "Can't read from %s!" % [ pn ] unless pn.readable?
+        return pn
+      end
+
+    	setting :template_path do |value|
+    		make_path( value )
+    	end
+
+    	setting :plugin_path do |*values|
+    		make_path( value )
+    	end
+    end
+
+If a setting is a boolean, you can also have a predicate method created for it
+alongside its getter and setter:
+
+    class Mailer
+      extend Configurability
+      configurability( :db ) do
+        setting :use_whitelist, default: false, predicate: true
+      end
+    end
+
+    Mailer.use_whitelist?
+    # => false
+    Mailer.use_whitelist = true
+    Mailer.use_whitelist?
+    # => true
 
 
 ### More Details

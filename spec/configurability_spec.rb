@@ -732,6 +732,17 @@ describe Configurability do
 			])
 		end
 
+
+		it "can declare a predicate method for a setting" do
+			mod.configurability( :testconfig ) do
+				setting :use_whitelist, default: false, predicate: true
+			end
+
+			expect {
+				mod.use_whitelist = true
+			}.to change { mod.use_whitelist? }.from( false ).to( true )
+		end
+
 	end
 
 
