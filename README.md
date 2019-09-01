@@ -1,4 +1,4 @@
-# Configurability
+# \Configurability
 
 home
 : https://bitbucket.org/ged/configurability
@@ -437,7 +437,7 @@ and generate the API documentation.
 
 ## License
 
-Copyright (c) 2010-2017 Michael Granger and Mahlon E. Smith
+Copyright (c) 2010-2019 Michael Granger and Mahlon E. Smith
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
