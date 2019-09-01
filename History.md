@@ -1,3 +1,17 @@
+## v3.4.0 [2019-09-01] Michael Granger <ged@FaerieMUD.org>
+
+Bugfixes:
+
+- Remove old command that depended on Trollop
+
+Enhancements:
+
+- Add a predicate setting option
+- Add a test for declaring helper methods inside a settings block
+- Add after-configure hooks to execute a block after the configuration
+  has been loaded
+
+
 ## v3.3.0 [2018-09-12] Michael Granger <ged@FaerieMUD.org>
 
 Enhancements:
