@@ -1,0 +1,15 @@
+image: freebsd/12.x
+packages:
+  - ruby
+  - rubygem-gems
+  - rubygem-rake
+sources:
+  - hg+https://hg.sr.ht/~ged/Configurability
+tasks:
+  - setup: |
+      cd Configurability
+      gem install --user-install -Ng gems.rb
+  - test: |
+      export PATH=$PATH:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin
+      cd Configurability
+      COVERAGE=1 rspec -cfd
