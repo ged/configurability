@@ -9,3 +9,4 @@ pkg/
 \.rbx/
 Gemfile.lock
 \.gem$
+\.lock$
