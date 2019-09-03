@@ -12,6 +12,8 @@ Documentation:
 
 ## v3.4.0 [2019-09-01] Michael Granger <ged@FaerieMUD.org>
 
+(Yanked due to inaccurate minimum Ruby version)
+
 Bugfixes:
 
 - Remove old command that depended on Trollop
