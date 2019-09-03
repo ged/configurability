@@ -1,3 +1,15 @@
+## v3.4.1 [2019-09-03] Michael Granger <ged@FaerieMUD.org>
+
+Bugfixes:
+
+- Bump minimal Ruby version to 2.5.
+
+Documentation:
+
+- Change URLs to Sourcehut/ability.guide
+- Fix license years, README title
+
+
 ## v3.4.0 [2019-09-01] Michael Granger <ged@FaerieMUD.org>
 
 Bugfixes:
