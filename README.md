@@ -1,10 +1,10 @@
-# \Configurability
+# Configurability
 
 home
-: https://bitbucket.org/ged/configurability
+: https://configur.ability.guide/
 
 code
-: https://bitbucket.org/ged/configurability
+: https://hg.sr.ht/~ged/Configurability
 
 docs
 : http://deveiate.org/code/configurability
@@ -423,9 +423,9 @@ default_config
 
 You can submit bug reports, suggestions, clone it with Mercurial, and
 read more about future plans at
-{the project page}[http://bitbucket.org/ged/configurability]. If you
+[the project page](http://hg.sr.ht/ged/configurability). If you
 prefer Git, there is also a
-{Github mirror}[https://github.com/ged/configurability].
+[Github mirror](https://github.com/ged/configurability).
 
 After checking out the source, run:
 

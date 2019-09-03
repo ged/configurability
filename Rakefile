@@ -22,10 +22,10 @@ hoespec = Hoe.spec 'configurability' do |spec|
 	spec.extra_rdoc_files = FileList[ '*.rdoc', '*.md' ]
 	spec.license 'BSD-3-Clause'
 	spec.urls = {
-		home:   'http://deveiate.org/projects/configurability',
-		code:   'http://bitbucket.org/ged/configurability',
-		docs:   'http://deveiate.org/code/configurability',
-		github: 'http://github.com/ged/configurability',
+		home:   'https://configur.ability.guide/',
+		code:   'https://hg.sr.ht/ged/Configurability',
+		docs:   'https://deveiate.org/code/configurability',
+		github: 'https://github.com/ged/configurability',
 	}
 
 	spec.developer 'Michael Granger', 'ged@FaerieMUD.org'
