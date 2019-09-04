@@ -8,7 +8,7 @@ sources:
 tasks:
   - setup: |
       cd Configurability
-      gem install --user-install -Ng gems.rb
+      gem install --user-install -Ng
   - test: |
       export PATH=$PATH:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin
       cd Configurability
