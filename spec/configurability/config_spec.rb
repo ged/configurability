@@ -119,13 +119,6 @@ describe Configurability::Config do
 	end
 
 
-	it "untaints values loaded from a config" do
-		yaml = TEST_CONFIG.dup.taint
-		config = described_class.new( yaml )
-		expect( config.listsection.first ).to_not be_tainted
-		expect( config.textsection ).to_not be_tainted
-	end
-
 
 	context "a config with nil keys" do
 

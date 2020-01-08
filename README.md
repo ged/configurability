@@ -435,9 +435,15 @@ This task will install any missing dependencies, run the tests/specs,
 and generate the API documentation.
 
 
+## Authors
+
+- Michael Granger <ged@faeriemud.org>
+- Mahlon E. Smith <mahlon@martini.nu>
+
+
 ## License
 
-Copyright (c) 2010-2019 Michael Granger and Mahlon E. Smith
+Copyright (c) 2010-2020 Michael Granger and Mahlon E. Smith
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

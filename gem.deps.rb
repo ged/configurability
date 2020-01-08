@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
 
-gem 'loggability', '~> 0.14'
+gem 'loggability', '~> 0.15'
 
 group :development do
-	gem 'hoe-deveiate', '~> 0.8'
+	gem 'rake-deveiate', '~> 0.5'
 	gem 'simplecov', '~> 0.12'
-	gem 'rspec', '~> 3.8'
+	gem 'rspec', '~> 3.9'
 end
 

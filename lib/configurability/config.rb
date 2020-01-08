@@ -260,7 +260,7 @@ class Configurability::Config
 			   end
 		end
 
-		ihash = symbolify_keys( untaint_hash(hash) )
+		ihash = symbolify_keys( hash )
 		idefaults = symbolify_keys( defaults )
 		mergedhash = idefaults.merge( ihash, &mergefunc )
 
@@ -289,40 +289,8 @@ class Configurability::Config
 
 
 	# A collection of data-structure-manipulation functions.
+	# :TODO: Replace with #transform_keys after 2.4's EOL
 	module DataUtilities
-
-		### Return a copy of the specified +hash+ with all of its values
-		### untainted.
-		def untaint_hash( hash )
-			newhash = {}
-			hash.each_key do |key|
-				newhash[ key ] = untaint_value( hash[key] )
-			end
-			return newhash
-		end
-
-
-		### Return an untainted copy of the specified +val+.
-		def untaint_value( val )
-			case val
-			when Hash
-				return untaint_hash( val )
-
-			when Array
-				return val.collect {|v| untaint_value(v) }
-
-			when NilClass, TrueClass, FalseClass, Numeric, Symbol, Encoding
-				return val
-
-			else
-				if val.respond_to?( :dup ) && val.respond_to?( :untaint )
-					return val.dup.untaint
-				else
-					return val
-				end
-			end
-		end
-
 
 		### Return a duplicate of the given +hash+ with its identifier-like keys
 		### transformed into symbols from whatever they were before.
@@ -404,7 +372,7 @@ class Configurability::Config
 		# Return the value associated with the specified +key+, or another
 		# Configurability::Config::ConfigStruct if +key+ is a section name.
 		def []( key )
-			key = key.untaint.to_sym if key.respond_to?( :to_sym )
+			key = key.to_sym if key.respond_to?( :to_sym )
 
 			# Convert Hashes to Struct on the fly for subsections
 			@hash[ key ] = self.class.new( @hash[key] ) if @hash[ key ].is_a?( Hash )
@@ -415,7 +383,7 @@ class Configurability::Config
 
 		### Set the value associated with the specified +key+ to +value+.
 		def []=( key, value )
-			key = key.untaint.to_sym
+			key = key.to_sym
 			self.mark_dirty if @hash[ key ] != value
 			@hash[ key ] = value
 		end
