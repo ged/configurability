@@ -43,6 +43,10 @@ class Configurability::Config
 	log_to :configurability
 
 
+	# Make safe loading the default if SafeYAML is loaded
+	SafeYAML::OPTIONS[:default_mode] = :safe if defined?( SafeYAML )
+
+
 	#############################################################
 	###	C L A S S   M E T H O D S
 	#############################################################

@@ -301,8 +301,7 @@ module Configurability
 			@config.each_pair do |key, value|
 				Configurability.log.debug "Looking for %p config attribute" % [ key ]
 				next unless self.respond_to?( "#{key}=" )
-				Configurability.log.debug "  setting %p to %p via attr_writer" %
-					[ key, value ]
+				Configurability.log.debug "  setting %p to %p" % [ key, value ]
 				self.public_send( "#{key}=", value )
 			end
 		else
