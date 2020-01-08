@@ -1,3 +1,19 @@
+# Release History for configurability
+
+---
+
+
+## v4.0.0 [2020-01-08] Michael Granger <ged@faeriemud.org>
+
+Breaking changes:
+
+- Remove tainting, which is deprecated in 2.7 and beyond.
+
+Enhancements:
+
+- Enable SafeYAML if it's loaded
+
+
 ## v3.4.1 [2019-09-03] Michael Granger <ged@FaerieMUD.org>
 
 Bugfixes:
