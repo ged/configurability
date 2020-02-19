@@ -2,6 +2,12 @@
 
 ---
 
+## v4.1.0 [2020-02-19] Michael Granger <ged@faeriemud.org>
+
+Improvements:
+
+- Add support for two-argument #respond_to? to Configurability::Config
+
 
 ## v4.0.0 [2020-01-08] Michael Granger <ged@faeriemud.org>
 
