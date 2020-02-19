@@ -166,7 +166,7 @@ class Configurability::Config
 
 
 	### Returns +true+ for methods which can be autoloaded
-	def respond_to?( sym )
+	def respond_to?( sym, include_all=false )
 		return true if @struct.member?( sym.to_s.sub(/(=|\?)$/, '').to_sym )
 		super
 	end

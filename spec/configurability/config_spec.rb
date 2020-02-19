@@ -160,6 +160,11 @@ describe Configurability::Config do
 		end
 
 
+		it "supports two-argument respond_to?" do
+			expect( config.respond_to?(:section, true) ).to be_truthy
+		end
+
+
 		it "contains values specified in the source" do
 			# section:
 			#   subsection:
