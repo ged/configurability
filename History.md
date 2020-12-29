@@ -2,6 +2,13 @@
 
 ---
 
+## v4.2.0 [2020-12-28] Michael Granger <ged@faeriemud.org>
+
+Improvements:
+
+- Updates for Ruby 3
+
+
 ## v4.1.0 [2020-02-19] Michael Granger <ged@faeriemud.org>
 
 Improvements:
